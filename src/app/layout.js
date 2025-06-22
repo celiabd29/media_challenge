@@ -1,5 +1,6 @@
+// src/app/layout.js
 import "./globals.css";
-import { AuthProvider } from "../contexts/AuthContext";
+import ClientLayoutWrapper from "../components/ClientLayoutWrapper";
 
 export const metadata = {
   title: "Mon App Média",
@@ -17,8 +18,8 @@ export default function RootLayout({ children }) {
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
         <meta name="theme-color" content="#111827" />
       </head>
-      <body>
-        <AuthProvider>{children}</AuthProvider>
+      <body suppressHydrationWarning={true}>
+        <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
       </body>
     </html>
   );
