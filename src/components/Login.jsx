@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { supabase } from "../supabase/supabaseClient";
 import { useRouter } from "next/navigation";
 
@@ -7,6 +7,7 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [role, setRole] = useState(null);
   const router = useRouter();
 
   const handleLogin = async (e) => {
@@ -26,6 +27,18 @@ export default function Login() {
 
     const user = authData.user;
 
+    if (!user) {
+      setMessage("❌ L'utilisateur n'a pas été trouvé.");
+      return;
+    }
+
+    // Vérifie la session juste après l'authentification
+    const { data: session } = await supabase.auth.getSession();
+    if (!session) {
+      setMessage("❌ Session expirée ou problème d'authentification.");
+      return;
+    }
+
     // Étape 2 : Récupération du rôle depuis la table 'users'
     const { data: userData, error: userError } = await supabase
       .from("users")
@@ -40,7 +53,14 @@ export default function Login() {
 
     const { role } = userData;
 
-    setTimeout(() => {
+    // Mise à jour du rôle pour déclencher la redirection
+    setRole(role);
+  };
+
+  useEffect(() => {
+    console.log("Role:", role); // Débogage pour suivre la valeur du rôle
+
+    if (role) {
       switch (role) {
         case "admin":
           router.push("/dashboard");
@@ -53,8 +73,8 @@ export default function Login() {
           router.push("/accueil");
           break;
       }
-    }, 100);
-  };
+    }
+  }, [role, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
@@ -82,12 +102,12 @@ export default function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full px-4 py-3 border border-gray-300 placeholder-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full px-4 py-3 mt-4 border border-gray-300 placeholder-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white font-medium py-3 rounded-md hover:bg-blue-700 transition"
+            className="w-full bg-blue-600 text-white font-medium py-3 mt-4 rounded-md hover:bg-blue-700 transition"
           >
             Se connecter
           </button>
