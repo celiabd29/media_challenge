@@ -44,3 +44,15 @@ a {
     color-scheme: dark;
   }
 }
+
+/* Style pour tous les h1 principaux */
+h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #111;
+  position: relative;
+  padding-left: 12px;
+  margin-bottom: 0.5em;
+  display: inline-block;
+  line-height: 1.1;
+}
