@@ -1,0 +1,84 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+
+type Answer = {
+  id: string;
+  answer_text: string;
+  is_correct: boolean;
+};
+
+type QuestionWithAnswers = {
+  id: string;
+  question_text: string;
+  answers: Answer[];
+};
+
+export default function QuizPage() {
+  const [question, setQuestion] = useState<QuestionWithAnswers | null>(null);
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchQuestion = async () => {
+      const { data, error } = await supabase
+        .from("questions")
+        .select("id, question_text, answers(id, answer_text, is_correct)")
+        .limit(1) // Tu peux remplacer par random() plus tard
+        .single();
+
+      if (error) console.error(error);
+      else setQuestion(data as QuestionWithAnswers);
+    };
+
+    fetchQuestion();
+  }, []);
+
+  const handleAnswerClick = (id: string) => {
+    if (!selectedAnswer) {
+      setSelectedAnswer(id);
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-pink-100 px-4">
+      <div className="max-w-xl w-full bg-white p-6 rounded-2xl shadow-lg">
+        {question ? (
+          <>
+            <h1 className="text-xl font-semibold text-center mb-6">
+              {question.question_text}
+            </h1>
+            <div className="grid grid-cols-1 gap-4">
+              {question.answers.map((answer) => {
+                const isSelected = selectedAnswer === answer.id;
+                const isCorrect = answer.is_correct;
+                let bgColor = "bg-white";
+
+                if (selectedAnswer) {
+                  if (isSelected && isCorrect) bgColor = "bg-green-200";
+                  else if (isSelected && !isCorrect) bgColor = "bg-red-200";
+                  else if (!isSelected && isCorrect) bgColor = "bg-green-100";
+                }
+
+                return (
+                  <button
+                    key={answer.id}
+                    className={`p-4 rounded-xl border transition-colors ${bgColor} ${
+                      !selectedAnswer ? "hover:bg-gray-100" : ""
+                    }`}
+                    onClick={() => handleAnswerClick(answer.id)}
+                    disabled={!!selectedAnswer}
+                  >
+                    {answer.answer_text}
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        ) : (
+          <p>Chargement...</p>
+        )}
+      </div>
+    </div>
+  );
+}

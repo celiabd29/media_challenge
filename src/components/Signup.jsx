@@ -78,7 +78,7 @@ export default function Signup() {
             value={nom}
             onChange={(e) => setNom(e.target.value)}
             required
-            className="w-full border border-gray-300 rounded-md px-4 py-3 text-sm"
+            className="w-full border border-gray-300 placeholder-gray-600 rounded-md px-4 py-3 mt-3 text-sm"
           />
           <input
             type="email"
@@ -86,7 +86,7 @@ export default function Signup() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full border border-gray-300 rounded-md px-4 py-3 text-sm"
+            className="w-full border border-gray-300 placeholder-gray-600 rounded-md px-4 py-3 mt-3 text-sm"
           />
           <input
             type="password"
@@ -94,7 +94,7 @@ export default function Signup() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full border border-gray-300 rounded-md px-4 py-3 text-sm"
+            className="w-full border border-gray-300 placeholder-gray-600 rounded-md px-4 py-3 mt-3 text-sm"
           />
 
           {/* Rôles visibles à l’inscription */}
@@ -102,7 +102,7 @@ export default function Signup() {
             value={role}
             onChange={(e) => setRole(e.target.value)}
             required
-            className="w-full border border-gray-300 rounded-md px-4 py-3 text-sm"
+            className="w-full border border-gray-300 placeholder-gray-600 rounded-md px-4 py-3 mt-3 text-sm"
           >
             <option value="utilisateur">Utilisateur</option>
             <option value="sexologue">Sexologue</option>
@@ -110,7 +110,7 @@ export default function Signup() {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white font-medium py-3 rounded-md hover:bg-blue-700 transition"
+            className="w-full bg-blue-600 text-white font-medium py-3 mt-3 rounded-md hover:bg-blue-700 transition"
           >
             S'inscrire
           </button>
