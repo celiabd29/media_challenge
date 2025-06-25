@@ -7,24 +7,28 @@ import { useRouter } from "next/navigation";
 import BottomNavbar from './BottomNavbar';
 
 // imp d'images
-import ecouteImg       from '../assets/img/ecoute.png'
-import emotionsImg     from '../assets/img/emotions.png'
-import consentementImg from '../assets/img/consentement.png'
-import puberteImg      from '../assets/img/puberte.png'
+import ecouteImg       from '../assets/img/ecoute2.png'
+import emotionImg     from '../assets/img/emotion2.png'
+import consentementImg from '../assets/img/consentement2.png'
+import puberteImg      from '../assets/img/puberte2.png'
 import identiteImg     from '../assets/img/identite.png'
 import expositionImg   from '../assets/img/exposition.png'
+import relationImg   from '../assets/img/relation.png'
+import plaisirImg   from '../assets/img/plaisir.png'
+import communicationImg   from '../assets/img/communication.png'
+import protectionImg   from '../assets/img/protection.png'
 
 const categories = [
     { key: 'ecoute',       label: 'Écoute',       image: ecouteImg,       bgColor: 'bg-[#E9C4DE]', href: '/ecoute' },
-    { key: 'emotions',     label: 'Émotions',     image: emotionsImg,     bgColor: 'bg-[#E0EED0]', href: '/emotions' },
+    { key: 'emotions',     label: 'Émotions',     image: emotionImg,     bgColor: 'bg-[#E0EED0]', href: '/communication' },
     { key: 'consentement', label: 'Consentement', image: consentementImg, bgColor: 'bg-[#FFCFA6]', href: '/consentement' },
     { key: 'puberte',      label: 'Puberté',      image: puberteImg,      bgColor: 'bg-[#B3D1ED]', href: '/puberte' },
-    { key: 'identite',     label: 'Identité',     image: identiteImg,     bgColor: 'bg-[#E9C4DE]', href: '/identite' },
+    { key: 'identite',     label: 'Identité',     image: identiteImg,     bgColor: 'bg-[#DDC8FF]', href: '/identite' },
     { key: 'exposition',   label: 'Exposition',   image: expositionImg,   bgColor: 'bg-[#FFFBC4]', href: '/exposition' },
-    { key: 'test1',        label: '...',          bgColor: 'bg-[#E9C4DE]', href: '/test1' },
-    { key: 'test2',        label: '...',          bgColor: 'bg-[#E0EED0]', href: '/test2' },
-    { key: 'test3',        label: '...',          bgColor: 'bg-[#E9C4DE]', href: '/test3' },
-    { key: 'test4',        label: '...',          bgColor: 'bg-[#E0EED0]', href: '/test4' },
+    { key: 'relation',        label: 'Relation',  image: relationImg,     bgColor: 'bg-[#AAAEFF]', href: '/relation' },
+    { key: 'plaisir',        label: 'Plaisir',    image: plaisirImg,       bgColor: 'bg-[#FF9CAA]', href: '/plaisir' },
+    { key: 'communication', label: 'Communication', image: communicationImg,           bgColor: 'bg-[#91CCC9]', href: '/communication' },
+    { key: 'protection',        label: 'Protection', image: protectionImg,       bgColor: 'bg-[#C591CC]', href: '/protection' },
   ]
 
 export default function Recherche() {
@@ -56,7 +60,7 @@ export default function Recherche() {
             <div
               key={cat.key}
               onClick={() => handleCategoryClick(cat)}
-              className={`relative h-20 rounded-lg overflow-hidden cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 ${cat.bgColor}`}
+              className={`relative h-24 md:h-40 rounded-lg overflow-hidden cursor-pointer transition-all duration-200 hover:scale-90 active:scale-80 ${cat.bgColor}`}
             >
               {cat.image && (
                 <Image

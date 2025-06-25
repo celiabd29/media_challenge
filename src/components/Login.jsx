@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "../supabase/supabaseClient";
 import { useRouter } from "next/navigation";
 import Image from 'next/image';
-import emotionsImg from '../assets/img/emotions.png';
+// import emotionsImg from '../assets/img/emotions.png';
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -63,11 +63,11 @@ export default function Login() {
   }, [role, router]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white px-6">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4">
       {/* Illustration */}
       <div className="h-16 w-16 mb-6">
         <Image
-          src={emotionsImg}
+          // src={emotionsImg}
           alt="Illustration"
           width={64}
           height={64}
@@ -77,11 +77,11 @@ export default function Login() {
 
       {/* Titre */}
       <div className="mb-2 text-center">
-        <h1 className="text-2xl font-medium text-gray-900">Bienvenue</h1>
+        <h1 className="text-3xl font-medium text-gray-900">Bienvenue</h1>
       </div>
 
       {/* Formulaire */}
-      <form onSubmit={handleLogin} className="w-full max-w-sm space-y-6">
+      <form onSubmit={handleLogin} className="w-full max-w-xs sm:max-w-sm md:max-w-md space-y-6">
         {/* Titre du formulaire */}
         <h2 className="text-2xl font-medium text-gray-700 mb-[19px]">
           Connectez-vous
@@ -120,7 +120,7 @@ export default function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-3 pl-10 bg-[#F6F6F6] border border-[#D8D8D8] rounded-[8px]
+            className="w-full px-4 py-3 pl-10 bg-[#FFFFFF] border border-[#D8D8D8] rounded-[8px]
                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
                        text-gray-900"
           />
@@ -166,7 +166,7 @@ export default function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full px-4 py-3 pl-10 bg-[#F6F6F6] border border-[#D8D8D8] rounded-[8px]
+            className="w-full px-4 py-3 pl-10 bg-[#FFFFFF] border border-[#D8D8D8] rounded-[8px]
                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
                        text-gray-900"
           />
@@ -180,37 +180,39 @@ export default function Login() {
         </div>
 
         {/* Mot de passe oublié & se souvenir */}
-        <div className="flex flex-col w-full space-y-4">
-          <div className="flex justify-start">
-            <a
-              href="/forgot-password"
-              className="text-blue-600 hover:underline text-sm"
-            >
-              Mot de passe oublié ?
-            </a>
-          </div>
-          <div className="flex justify-end items-center space-x-2">
-            <input
-              id="remember"
-              type="checkbox"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-            />
-            <label htmlFor="remember" className="text-sm text-gray-800">
-              Se souvenir de moi
-            </label>
-          </div>
+        <div className="w-full mb-[24px]">
+          <a
+            href="/forgot-password"
+            className="text-blue-600 hover:underline text-sm"
+          >
+            Mot de passe oublié ?
+          </a>
+        </div>
+        <div className="w-full flex justify-center items-center mb-4 space-x-2">
+          <label htmlFor="remember" className="flex items-center cursor-pointer select-none">
+            <div className="relative" style={{ width: '32.3px', height: '19px' }}>
+              <input
+                id="remember"
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="sr-only"
+              />
+              <div className={`w-full h-full rounded-full transition-colors duration-200 border-2 border-[#E7E3E3] ${rememberMe ? 'bg-[#4976E7] border-[#4976E7]' : 'bg-[#F9F9F9] border-[#E7E3E3]'}`}></div>
+              <div className={`absolute top-[2px] left-[2px] transition-all duration-200 rounded-full ${rememberMe ? 'translate-x-[13.3px] bg-white' : 'bg-[#4976E7]'} w-[15px] h-[15px]`}></div>
+            </div>
+            <span className="ml-3 text-sm text-gray-800">Se souvenir de moi</span>
+          </label>
         </div>
 
         {/* Boutons */}
         <button
           type="submit"
-          className="w-full mb-[11px] bg-blue-600 text-white font-medium py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200"
+          className="w-full mb-[11px] border border-[#4069E1] text-[#4069E1] font-medium py-3 rounded-lg hover:bg-blue-50 transition-colors duration-200"
         >
           CONNEXION
         </button>
-        <button className="w-full border border-blue-600 text-blue-600 font-medium py-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+        <button className="w-full border border-blue-600 text-[#4069E1] font-medium py-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
           <a href="/signup" className="hover:underline">
             INSCRIPTION
           </a>
