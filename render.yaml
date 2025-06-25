@@ -2,7 +2,7 @@ services:
   - type: web
     name: mon-app-media
     env: node
-    buildCommand: npm install && npm run build
+    buildCommand: npm install --legacy-peer-deps && npm run build
     startCommand: npm run start
     branch: main
     autoDeploy: true

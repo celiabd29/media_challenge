@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
+    "baseUrl": ".", // Cela définit la racine du projet comme base pour les chemins
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["src/*"] // Cela configure l'alias "@" pour pointer vers le dossier "src"
     }
   }
 }

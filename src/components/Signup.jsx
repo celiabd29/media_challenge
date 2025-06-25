@@ -2,12 +2,22 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../supabase/supabaseClient";
 import { useRouter } from "next/navigation";
+import {
+  MailIcon,
+  LockIcon,
+  UserIcon,
+  EyeIcon,
+  EyeOffIcon,
+} from "lucide-react";
 
 export default function Signup() {
   const [nom, setNom] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("utilisateur"); // valeur par défaut
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [role, setRole] = useState("utilisateur");
   const [message, setMessage] = useState("");
   const router = useRouter();
 
@@ -16,16 +26,13 @@ export default function Signup() {
       async (event, session) => {
         if (event === "SIGNED_IN" && session) {
           const user = session.user;
-
-          // Vérifie si l'utilisateur est déjà dans la table
-          const { data: existing, error: fetchError } = await supabase
+          const { data: existing } = await supabase
             .from("users")
             .select("id")
             .eq("id", user.id)
             .single();
 
-          // S'il n'existe pas encore, on l'ajoute
-          if (!existing && !fetchError) {
+          if (!existing) {
             await supabase.from("users").insert({
               id: user.id,
               email: user.email,
@@ -46,89 +53,129 @@ export default function Signup() {
 
   const handleSignup = async (e) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      setMessage("❌ Les mots de passe ne correspondent pas.");
+      return;
+    }
 
     const { error: authError } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: {
+          nom,
+          role,
+        },
+      },
     });
 
     if (authError) {
       setMessage(`❌ ${authError.message}`);
     } else {
-      setMessage(
-        "✅ Compte créé ! Vérifie ton email pour confirmer ton inscription 📧"
-      );
+      setMessage("✅ Compte créé ! Vérifie ton email pour confirmer 📧");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-6 py-10">
+      <img src="/logo.png" alt="logo" className="w-34 h-34 mb-6 mt-4" />
+
+      <h1 className="text-2xl font-bold text-gray-800 mb-1">
+        Inscrivez vous :
+      </h1>
+
       <form
         onSubmit={handleSignup}
-        className="bg-white shadow-md rounded-lg p-8 w-full max-w-md"
+        className="w-full max-w-sm bg-gray-50 rounded-xl space-y-4 mt-6"
       >
-        <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">
-          Créer un compte
-        </h2>
-
-        <div className="space-y-4">
+        {/* Nom */}
+        <div className="flex items-center border border-gray-300 bg-white rounded-md px-3">
+          <UserIcon size={20} className="text-gray-400" />
           <input
             type="text"
-            placeholder="Nom"
+            placeholder="Prénom"
             value={nom}
             onChange={(e) => setNom(e.target.value)}
             required
-            className="w-full border border-gray-300 placeholder-gray-600 rounded-md px-4 py-3 mt-3 text-sm"
+            className="w-full px-2 py-3 text-sm focus:outline-none text-gray-400"
           />
+        </div>
+
+        {/* Email */}
+        <div className="flex items-center border border-gray-300 bg-white rounded-md mt-3 px-3">
+          <MailIcon size={20} className="text-gray-400" />
           <input
             type="email"
-            placeholder="Email"
+            placeholder="abc@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full border border-gray-300 placeholder-gray-600 rounded-md px-4 py-3 mt-3 text-sm"
+            className="w-full px-2 py-3 text-sm focus:outline-none text-gray-400"
           />
+        </div>
+
+        {/* Password */}
+        <div className="flex items-center border border-gray-300 bg-white rounded-md mt-3 px-3">
+          <LockIcon size={20} className="text-gray-400" />
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="Mot de passe"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full border border-gray-300 placeholder-gray-600 rounded-md px-4 py-3 mt-3 text-sm"
+            className="w-full px-2 py-3 text-sm focus:outline-none text-gray-400"
           />
-
-          {/* Rôles visibles à l’inscription */}
-          <select
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            required
-            className="w-full border border-gray-300 placeholder-gray-600 rounded-md px-4 py-3 mt-3 text-sm"
-          >
-            <option value="utilisateur">Utilisateur</option>
-            <option value="sexologue">Sexologue</option>
-          </select>
-
           <button
-            type="submit"
-            className="w-full bg-blue-600 text-white font-medium py-3 mt-3 rounded-md hover:bg-blue-700 transition"
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="text-gray-400"
           >
-            S'inscrire
+            {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
           </button>
-
-          {message && (
-            <p className="text-red-500 text-center font-medium">{message}</p>
-          )}
         </div>
 
-        <p className="text-sm text-center text-gray-500 mt-6">
-          Déjà un compte ?{" "}
-          <a
-            href="/login"
-            className="text-blue-600 underline hover:text-blue-800"
+        {/* Confirm Password */}
+        <div className="flex items-center border border-gray-300 bg-white rounded-md mt-3 px-3">
+          <LockIcon size={20} className="text-gray-400" />
+          <input
+            type={showConfirm ? "text" : "password"}
+            placeholder="Confirmez votre mot de passe"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            className="w-full px-2 py-3 text-sm focus:outline-none text-gray-400"
+          />
+          <button
+            type="button"
+            onClick={() => setShowConfirm(!showConfirm)}
+            className="text-gray-400"
           >
-            Se connecter
-          </a>
-        </p>
+            {showConfirm ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+          </button>
+        </div>
+
+        {/* Boutons */}
+        <div className="flex flex-col space-y-3 mt-4">
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700"
+          >
+            INSCRIPTION
+          </button>
+          <p className="text-sm text-center text-gray-500 mt-6">
+            Déjà un compte ?{" "}
+            <a
+              href="/login"
+              className="text-blue-600 underline hover:text-blue-800"
+            >
+              Connectez-vous
+            </a>
+          </p>
+        </div>
+
+        {message && (
+          <p className="text-red-500 text-center font-medium mt-3">{message}</p>
+        )}
       </form>
     </div>
   );
