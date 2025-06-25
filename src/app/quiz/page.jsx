@@ -1,43 +1,29 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
-
-type Answer = {
-  id: string;
-  answer_text: string;
-  is_correct: boolean;
-};
-
-type QuestionWithAnswers = {
-  id: string;
-  question_text: string;
-  answers: Answer[];
-};
+import { supabase } from "../../supabase/supabaseClient";
 
 export default function QuizPage() {
-  const [question, setQuestion] = useState<QuestionWithAnswers | null>(null);
-  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [question, setQuestion] = useState(null);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
 
   useEffect(() => {
     const fetchQuestion = async () => {
       const { data, error } = await supabase
         .from("questions")
         .select("id, question_text, answers(id, answer_text, is_correct)")
-        .limit(1) // Tu peux remplacer par random() plus tard
+        .limit(1)
         .single();
 
       if (error) console.error(error);
-      else setQuestion(data as QuestionWithAnswers);
+      else setQuestion(data);
     };
 
     fetchQuestion();
   }, []);
 
-  const handleAnswerClick = (id: string) => {
-    if (!selectedAnswer) {
-      setSelectedAnswer(id);
-    }
+  const handleAnswerClick = (id) => {
+    if (!selectedAnswer) setSelectedAnswer(id);
   };
 
   return (

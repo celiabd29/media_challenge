@@ -6,6 +6,7 @@ import Image from 'next/image'
 // import BottomNav from '../components/BottomNav'
 import Navigation from './Navigation'
 import SearchBar from '../components/SearchBar'
+import BottomNavbar from './BottomNavbar'
 
 
 export default function Recherche() {
@@ -40,6 +41,7 @@ export default function Recherche() {
         {/* 
          */}
       </div>
+      <BottomNavbar />
     </div>
   )
 }

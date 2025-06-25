@@ -43,7 +43,7 @@ export default function Recherche() {
         selectedTab={selectedTab}
         setSelectedTab={setSelectedTab}
       />
-      
+          <BottomNavbar />
     </div>
   )
 }

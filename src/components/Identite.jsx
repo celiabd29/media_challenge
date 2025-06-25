@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import Navigation from './Navigation'
 import SearchBar from '../components/SearchBar'
+import BottomNavbar from './BottomNavbar'
 
 export default function Recherche() {
   const router = useRouter()         
@@ -43,7 +44,7 @@ export default function Recherche() {
         selectedTab={selectedTab}
         setSelectedTab={setSelectedTab}
       />
-      
+          <BottomNavbar />
     </div>
   )
 }

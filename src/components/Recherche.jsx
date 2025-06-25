@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import Image from 'next/image'
 import SearchBar from '../components/SearchBar'
 import { useRouter } from "next/navigation";
+import BottomNavbar from './BottomNavbar';
 
 // imp d'images
 import ecouteImg       from '../assets/img/ecoute.png'
@@ -77,6 +78,8 @@ export default function Recherche() {
           ))}
         </div>
       </section>
+      <BottomNavbar />
      </div>
   )
+  
 }

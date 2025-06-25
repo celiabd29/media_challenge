@@ -6,6 +6,7 @@ export default function Home() {
           Bienvenue sur Osmose
         </h1>
       </div>
+      {/* <BottomNavbar /> */}
     </main>
   );
 } 

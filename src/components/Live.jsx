@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import BottomNavbar from "./BottomNavbar";
 
 export default function Live() {
   const [roomUrl, setRoomUrl] = useState("");
@@ -120,6 +121,7 @@ export default function Live() {
           </>
         )}
       </div>
+      <BottomNavbar />
     </div>
   );
 }
