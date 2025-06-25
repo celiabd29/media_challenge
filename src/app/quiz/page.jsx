@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useEffect, useState } from "react";
 import { supabase } from "../../supabase/supabaseClient";
@@ -23,13 +23,9 @@ export default function QuizPage() {
   }, []);
 
   const handleAnswerClick = (id) => {
-<<<<<<< HEAD
-    if (!selectedAnswer) setSelectedAnswer(id);
-=======
     if (!selectedAnswer) {
       setSelectedAnswer(id);
     }
->>>>>>> c727626 (auth, profil, dashboard -celia)
   };
 
   return (
