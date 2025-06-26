@@ -38,7 +38,20 @@ export default function NaveShare() {
       </button>
 
       {/* Partager */}
-      <button className="flex items-center justify-center w-10 h-10">
+      <button
+        className="flex items-center justify-center w-10 h-10"
+        onClick={() => {
+          if (navigator.share) {
+            navigator.share({
+              title: document.title,
+              text: 'Découvrez ce contenu !',
+              url: window.location.href,
+            });
+          } else {
+            alert('Le partage n\'est pas supporté sur ce navigateur.');
+          }
+        }}
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"

@@ -1,10 +1,12 @@
 'use client'
 
 import React from 'react'
+import Link from 'next/link'
 
 const tabs = [
   {
     key: 'Tout',
+    href: '/',
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -22,6 +24,7 @@ const tabs = [
   },
   {
     key: 'Article',
+    href: '/articles',
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -42,6 +45,7 @@ const tabs = [
   },
   {
     key: 'Vidéo',
+    href: '/video',
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -59,6 +63,7 @@ const tabs = [
   },
   {
     key: 'Podcast',
+    href: '/podcasts',
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -83,19 +88,16 @@ export default function Navigation({ selectedTab, setSelectedTab }) {
     <nav className="flex mb-8 gap-2">
       {tabs.map((tab) => {
         const isActive = tab.key === selectedTab
+        const base = `flex flex-col items-center justify-center px-3 py-4 rounded-lg text-sm font-medium border-2 flex-1 min-w-0 transition`
+        const activeClasses   = `bg-blue-500 border-blue-500 text-white`
+        const inactiveClasses = `bg-white border-blue-500 text-blue-500 hover:border-blue-600`
 
         return (
-          <button
+          <Link
             key={tab.key}
+            href={tab.href}
+            className={`${base} ${isActive ? activeClasses : inactiveClasses}`}
             onClick={() => setSelectedTab(tab.key)}
-            className={`
-              flex flex-col items-center justify-center
-              px-3 py-4 rounded-lg text-sm font-medium
-              border-2 flex-1 min-w-0
-              ${isActive
-                ? 'bg-blue-500 border-blue-500 text-white'
-                : 'bg-white border-blue-500 text-blue-500 hover:border-blue-600'}
-            `}
           >
             {React.cloneElement(tab.icon, {
               width: 20,
@@ -103,7 +105,7 @@ export default function Navigation({ selectedTab, setSelectedTab }) {
               stroke: isActive ? '#ffffff' : '#3b82f6'
             })}
             <span className="capitalize text-xs pt-1">{tab.key}</span>
-          </button>
+          </Link>
         )
       })}
     </nav>

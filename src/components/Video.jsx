@@ -75,7 +75,7 @@ export default function Video() {
   }
 
   return (
-    <main className="min-h-screen bg-white px-4 pb-20">
+    <main className="min-h-screen bg-white pb-20">
       {/* HEADER */}
       <header className="pt-6 flex items-center justify-between">
     
@@ -162,7 +162,7 @@ export default function Video() {
       </div>
 
       {/* TITRE & DESCRIPTION */}
-      <section className="mt-6">
+      <section className="mt-6 px-4">
         <h1 className="text-2xl font-semibold text-black">
           Le plaisir sans tabou
         </h1>
@@ -172,7 +172,7 @@ export default function Video() {
       </section>
 
       {/* CTA QUIZ */}
-      <Link href="/quiz" className="mt-6 block">
+      <Link href="/quiz" className="mt-6 block px-4">
         <div className="flex items-center bg-[#E9C4DE] h-[89px] rounded-[8px] px-4 shadow-sm hover:shadow-md transition-shadow">
           <div className="">
             <Image
