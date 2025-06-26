@@ -4,21 +4,20 @@
 // import Image from "next/image";
 // // import { Search } from 'lucide-react'
 // // import BottomNav from '../components/BottomNav'
-// import Navigation from "./Navigation";
 // import SearchBar from "../components/SearchBar";
 // import BottomNavbar from "./BottomNavbar";
 
 // export default function Recherche() {
-//   const [selectedTab, setSelectedTab] = useState("Tout");
-//   const [query, setQuery] = useState("");
-
-//   return (
-//     <div className="flex flex-col min-h-screen pb-20 bg-white px-4 py-6">
-//       {/* En‐tête */}
-//       <header className="flex items-center justify-between mb-4">
-//         <h1 className="text-black font-medium text-2xl leading-6">Favoris</h1>
-//         <button aria-label="Favoris" className="p-2">
-//           {/* <Bookmark size={24} /> */}
+  //   const [selectedTab, setSelectedTab] = useState("Tout");
+  //   const [query, setQuery] = useState("");
+  
+  //   return (
+    //     <div className="flex flex-col min-h-screen pb-20 bg-white px-4 py-6">
+    //       {/* En‐tête */}
+    //       <header className="flex items-center justify-between mb-4">
+    //         <h1 className="text-black font-medium text-2xl leading-6">Favoris</h1>
+    //         <button aria-label="Favoris" className="p-2">
+    //           {/* <Bookmark size={24} /> */}
 //         </button>
 //       </header>
 
@@ -45,9 +44,9 @@
 
 import React, { useState } from "react";
 // Ces imports seront réactivés après vérification
-// import Navigation from './Navigation';
-// import SearchBar from '../components/SearchBar';
-// import BottomNavbar from './BottomNavbar';
+import Navigation from './Navigation';
+import SearchBar from '../components/SearchBar';
+import BottomNavbar from './BottomNavbar';
 
 export default function Favoris() {
   const [selectedTab, setSelectedTab] = useState("Tout");
@@ -64,10 +63,10 @@ export default function Favoris() {
       </header>
 
       {/* Barre de recherche */}
-      {/* <SearchBar query={query} setQuery={setQuery} /> */}
+      <SearchBar query={query} setQuery={setQuery} />
 
       {/* Onglets de filtre */}
-      {/* <Navigation selectedTab={selectedTab} setSelectedTab={setSelectedTab} /> */}
+      <Navigation selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
 
       {/* Contenu principal */}
       <section className="flex-1 overflow-y-auto">
@@ -77,7 +76,7 @@ export default function Favoris() {
       </section>
 
       {/* Barre de navigation en bas */}
-      {/* <BottomNavbar /> */}
+      <BottomNavbar />
     </div>
   );
 }

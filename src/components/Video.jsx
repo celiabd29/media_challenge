@@ -193,8 +193,8 @@ export default function Video() {
           </svg>
         </div>
       </Link>
-      
       <NavShare query={query} setQuery={setQuery} />
+      
     </main>
   )
 }

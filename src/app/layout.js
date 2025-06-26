@@ -25,7 +25,7 @@ export default function RootLayout({ children }) {
       <body suppressHydrationWarning={true}>
         <ClientLayoutWrapper>
           {children}
-          <BottomNavbar />
+          {/* <BottomNavbar /> */}
         </ClientLayoutWrapper>
       </body>
     </html>
