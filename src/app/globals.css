@@ -56,3 +56,12 @@ h1 {
   display: inline-block;
   line-height: 1.1;
 }
+
+.hide-scrollbar {
+  -ms-overflow-style: none;    /* IE 11 */
+  scrollbar-width: none;       /* Firefox */
+  -webkit-overflow-scrolling: touch; /* iOS smooth scroll */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;               /* Chrome, Safari, Opera */
+}

@@ -10,7 +10,7 @@ export default function SearchBar({ query, setQuery }) {
         xmlns="http://www.w3.org/2000/svg"
         width="25"
         height="24"
-        viewBox="0 0 25 24"
+        viewBox="0 0 25 24"     
         fill="none"
         className="flex-shrink-0"
       >
@@ -35,7 +35,7 @@ export default function SearchBar({ query, setQuery }) {
         placeholder="Recherche"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="ml-2 flex-1 text-sm bg-transparent outline-none placeholder-[#9C9C9C]"
+        className="ml-2 flex-1 text-sm text-[#9C9C9C] bg-transparent outline-none placeholder-[#9C9C9C]"
       />
     </div>
   )
