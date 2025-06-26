@@ -35,7 +35,7 @@ export default function SearchBar({ query, setQuery }) {
         placeholder="Recherche"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="ml-2 flex-1 text-sm bg-transparent outline-none placeholder-[#9C9C9C]"
+        className="ml-2 flex-1 text-sm text-[#9C9C9C] bg-transparent outline-none placeholder-[#9C9C9C]"
       />
     </div>
   )
