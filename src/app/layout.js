@@ -7,9 +7,12 @@ export const metadata = {
   title: "Osmose",
   description: "Application média éducative et sécurisée",
   manifest: "/manifest.json",
-  viewport: {
-    themeColor: "#ff0000",
-  },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#ff0000",
 };
 
 export default function RootLayout({ children }) {
