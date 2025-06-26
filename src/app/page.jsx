@@ -54,7 +54,7 @@ export default function Home() {
             Voir tout
           </Link>
         </div>
-        <div className="flex gap-x-6 overflow-x-scroll hide-scrollbar">
+        <div className="flex gap-x-3 overflow-x-scroll hide-scrollbar">
           {categories.map(cat => (
             <Link
               key={cat.key}
