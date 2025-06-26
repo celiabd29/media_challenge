@@ -52,7 +52,6 @@ export default function Login() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-6 py-10">
       <img src="/logo.png" alt="logo" className="w-34 h-34 mb-6 mt-4" />
-
       <h1 className="text-2xl font-bold text-gray-800 mb-1">Bienvenue</h1>
       <p className="text-sm text-gray-600 mb-6">Connectez vous :</p>
 
