@@ -83,7 +83,7 @@ export default function Video() {
 
       {/* LECTEUR VIDÉO AVEC CONTRÔLES PERSONNALISÉS */}
       <div 
-        className="relative w-full h-[320px] rounded-bl-xl rounded-br-xl overflow-hidden bg-black"
+        className="relative w-full h-[200px] rounded-bl-xl rounded-br-xl overflow-hidden bg-black"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
@@ -92,7 +92,7 @@ export default function Video() {
           ref={videoRef}
           src={VIDEO_SRC}
           poster="/images/ecoute2.png" // Aussi dans public/images/
-          className="w-full h-[320px] object-cover cursor-pointer"
+          className="w-full h-[200px] object-cover cursor-pointer"
           onClick={handleVideoClick}
           onPlay={handlePlay}
           onPause={handlePause}
