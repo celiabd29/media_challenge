@@ -1,16 +1,16 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react'
-import Image from 'next/image'
-import { useRouter } from 'next/navigation'
-import Navigation from './Navigation'
-import SearchBar from '../components/SearchBar'
-import BottomNavbar from './BottomNavbar'
+import React, { useState } from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import Navigation from "./Navigation";
+import SearchBar from "../components/SearchBar";
+import BottomNavbar from "./BottomNavbar";
 
-export default function Recherche() {
-  const router = useRouter()         
-  const [selectedTab, setSelectedTab] = useState('Tout')
-  const [query, setQuery] = useState('')
+export default function Emotions() {
+  const router = useRouter();
+  const [selectedTab, setSelectedTab] = useState("Tout");
+  const [query, setQuery] = useState("");
 
   return (
     <div className="flex flex-col min-h-screen pb-20 bg-white px-4 py-6">
@@ -18,7 +18,7 @@ export default function Recherche() {
       <header className="flex items-center mb-4">
         {/* Bouton « back » circulaire */}
         <button
-          onClick={() => router.push('/recherche')}
+          onClick={() => router.push("/recherche")}
           className="p-2 bg-white rounded-full shadow-xl"
         >
           <svg
@@ -29,7 +29,11 @@ export default function Recherche() {
             stroke="currentColor"
             strokeWidth={2}
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
         </button>
 
@@ -40,11 +44,8 @@ export default function Recherche() {
       <SearchBar query={query} setQuery={setQuery} />
 
       {/*filtre */}
-      <Navigation
-        selectedTab={selectedTab}
-        setSelectedTab={setSelectedTab}
-      />
-          <BottomNavbar />
+      <Navigation selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
+      <BottomNavbar />
     </div>
-  )
+  );
 }

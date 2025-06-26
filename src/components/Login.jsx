@@ -1,8 +1,9 @@
 "use client";
+
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../supabase/supabaseClient";
-import { EyeIcon, EyeOffIcon, MailIcon, LockIcon } from "lucide-react";
+//import { EyeIcon, EyeOffIcon, MailIcon, LockIcon } from "lucide-react";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -62,7 +63,7 @@ export default function Login() {
       >
         {/* Email */}
         <div className="flex items-center border border-gray-300 bg-white rounded-md px-3">
-          <MailIcon size={20} className="text-gray-400" />
+          {/*<MailIcon size={20} className="text-gray-400" />*/}
           <input
             type="email"
             placeholder="abc@email.com"
@@ -75,7 +76,8 @@ export default function Login() {
 
         {/* Password */}
         <div className="flex items-center border border-gray-300 bg-white rounded-md mt-3 px-3">
-          <LockIcon size={20} className="text-gray-400" />
+          {/*<LockIcon size={20} className="text-gray-400" />
+           */}
           <input
             type={showPassword ? "text" : "password"}
             placeholder="Mot de passe"
@@ -89,7 +91,7 @@ export default function Login() {
             onClick={() => setShowPassword(!showPassword)}
             className="text-gray-400 "
           >
-            {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+            {/*{showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}*/}
           </button>
         </div>
 
