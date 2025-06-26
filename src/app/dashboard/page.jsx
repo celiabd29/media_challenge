@@ -3,6 +3,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Dashboard from "../../components/Dashboard";
+import NavButton from "../../components/BottomNavbar";
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
@@ -16,5 +17,10 @@ export default function DashboardPage() {
 
   if (loading || !user) return <p>Chargement...</p>;
 
-  return <Dashboard />;
+  return (
+    <>
+      <Dashboard />
+      <NavButton />
+    </>
+  );
 }

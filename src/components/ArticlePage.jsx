@@ -2,11 +2,12 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "../supabase/supabaseClient";
+import Link from "next/link"; // n'oublie pas ça !
 
 export default function ArticlePage() {
-  const [article, setArticle] = useState(null);
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
+  const [article, setArticle] = useState(null);
 
   useEffect(() => {
     const fetchArticle = async () => {
