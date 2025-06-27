@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { supabase } from "../../supabase/supabaseClient";
+import { supabase } from "@/supabase/supabaseClient";
 import { useRouter } from "next/navigation";
 
 export default function EspacePro() {

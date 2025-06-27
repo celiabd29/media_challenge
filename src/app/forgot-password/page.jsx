@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { supabase } from "../../supabase/supabaseClient";
+import { supabase } from "@/supabase/supabaseClient";
 import { MailIcon } from "lucide-react";
 
 export default function ForgotPassword() {

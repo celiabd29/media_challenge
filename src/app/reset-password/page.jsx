@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "../../supabase/supabaseClient";
+import { supabase } from "@/supabase/supabaseClient";
 import { LockIcon, EyeIcon, EyeOffIcon } from "lucide-react";
 
 export default function ResetPasswordPage() {

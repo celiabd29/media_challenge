@@ -1,6 +1,12 @@
 "use client";
-import ArticlePage from "../../components/ArticlePage";
 
-export default function Page() {
-  return <ArticlePage />;
+import { Suspense } from "react";
+import ArticlePage from "@/components/ArticlePage";
+
+export default function ArticleWrapper() {
+  return (
+    <Suspense fallback={<p>Chargement de l'article...</p>}>
+      <ArticlePage />
+    </Suspense>
+  );
 }
