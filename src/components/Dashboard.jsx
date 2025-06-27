@@ -21,15 +21,15 @@ export default function Dashboard() {
       const { data: a } = await supabase
         .from("articles")
         .select("*")
-        .eq("author_id", userId);
+      
       const { data: v } = await supabase
         .from("videos")
         .select("*")
-        .eq("author_id", userId);
+      
       const { data: p } = await supabase
         .from("podcasts")
         .select("*")
-        .eq("author_id", userId);
+        
 
       setArticles(a || []);
       setVideos(v || []);
