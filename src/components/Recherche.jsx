@@ -50,7 +50,7 @@ export default function Recherche() {
       </header>
 
       {/* barre recherche */}
-      <SearchBar query={query} setQuery={setQuery} />
+      <SearchBar />
 
       {/* categorie */}
       <section className="flex-1 overflow-y-auto">
