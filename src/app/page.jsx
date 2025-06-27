@@ -3,7 +3,7 @@
 import Image from "next/image";
 import BottomNavbar from "../components/BottomNavbar";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "../supabase/supabaseClient";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -21,6 +21,157 @@ const categories = [
   { key: 'puberte',      label: 'Puberté',      image: puberteImg,      bgColor: 'bg-[#B3D1ED]', href: '/puberte' },
   { key: 'identite',     label: 'Identité',     image: identiteImg,     bgColor: 'bg-[#DDC8FF]', href: '/identite' },
 ];
+
+// Composant lecteur vidéo compact pour la page d'accueil
+function VideoPreview() {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [showControls, setShowControls] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const videoRef = useRef(null);
+  const containerRef = useRef(null);
+  const hideControlsTimeoutRef = useRef(null);
+
+  // Gérer l'état plein écran
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
+  const togglePlay = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const handleVideoClick = () => {
+    togglePlay();
+  };
+
+  const handleMouseEnter = () => {
+    setShowControls(true);
+    if (hideControlsTimeoutRef.current) {
+      clearTimeout(hideControlsTimeoutRef.current);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (isPlaying) {
+      hideControlsTimeoutRef.current = setTimeout(() => {
+        setShowControls(false);
+      }, 1000);
+    }
+  };
+
+  const handlePlay = () => {
+    setIsPlaying(true);
+    hideControlsTimeoutRef.current = setTimeout(() => {
+      setShowControls(false);
+    }, 2000);
+  };
+
+  const handlePause = () => {
+    setIsPlaying(false);
+    setShowControls(true);
+    if (hideControlsTimeoutRef.current) {
+      clearTimeout(hideControlsTimeoutRef.current);
+    }
+  };
+
+  // Plein écran
+  const handleFullscreen = () => {
+    if (containerRef.current) {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        containerRef.current.requestFullscreen();
+      }
+    }
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      className={`relative w-full h-[180px] md:h-[320px] lg:h-[400px] rounded-2xl overflow-hidden bg-black shadow-md ${
+        isFullscreen ? 'fixed inset-0 z-[1000] flex items-center justify-center bg-black' : ''
+      }`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <video
+        ref={videoRef}
+        src="/video/fleur.mp4"
+        poster="/images/ecoute2.png"
+        className={`${isFullscreen
+          ? 'w-screen h-screen object-contain bg-black'
+          : 'w-full h-[180px] md:h-[320px] lg:h-[400px] object-cover'
+        } cursor-pointer`}
+        onClick={handleVideoClick}
+        onPlay={handlePlay}
+        onPause={handlePause}
+        preload="metadata"
+      >
+        Votre navigateur ne supporte pas la lecture de vidéos.
+      </video>
+      {/* Overlay avec contrôles */}
+      <div
+        className={`absolute inset-0 transition-opacity duration-500 ${
+          showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        } ${isFullscreen ? 'flex items-center justify-center' : ''}`}
+        style={isFullscreen ? { zIndex: 1001 } : {}}
+      >
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/20" />
+        {/* Bouton play/pause central */}
+        <div className={`absolute inset-0 flex items-center justify-center`}>
+          <button
+            onClick={togglePlay}
+            className="w-16 h-16 bg-pink-200/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-2xl hover:bg-pink-200/90 transition-all duration-300 hover:scale-110"
+          >
+            {isPlaying ? (
+              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+              </svg>
+            ) : (
+              <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            )}
+          </button>
+        </div>
+        {/* Bouton plein écran en bas à droite (ou en haut à droite en plein écran) */}
+        <button
+          onClick={handleFullscreen}
+          className={`absolute ${isFullscreen ? 'top-4 right-4' : 'bottom-4 right-4'} bg-white/80 hover:bg-white text-black rounded-full p-2 shadow`}
+          title="Plein écran"
+          style={isFullscreen ? { zIndex: 1002 } : {}}
+        >
+          <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3" />
+            <path d="M16 3h3a2 2 0 0 1 2 2v3" />
+            <path d="M8 21H5a2 2 0 0 1-2-2v-3" />
+            <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
+          </svg>
+        </button>
+      </div>
+      {/* Badge Nouveauté, visible seulement si la vidéo n'est pas en lecture */}
+      {!isPlaying && (
+        <span className="absolute top-4 left-4 bg-[#EAB1D9] text-white text-xs font-medium px-3 py-1 rounded-full z-10">
+          Nouveauté
+        </span>
+      )}
+    </div>
+  );
+}
 
 export default function Home() {
   const { user, loading } = useAuth();
@@ -68,68 +219,62 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-white px-4 pb-20">
+    <main className="min-h-screen bg-white px-4 pb-20 max-w-3xl md:max-w-4xl lg:max-w-5xl mx-auto">
       {/* HEADER */}
       <header className="pt-8 flex items-center justify-between">
-        <p className="text-lg text-gray-700">
+        <p className="text-lg md:text-2xl text-gray-700">
           Bonjour👋 <br /> <span className="font-semibold">{userName || "!"}</span>
         </p>
       </header>
 
-      {/* CARTE "Nouveauté" */}
+      {/* CARTE "Nouveauté" remplacée par la vidéo */}
       <section className="mt-6">
-        <h1 className="text-xl">Notre dernier reportage</h1>
-        <div className="relative h-[180px] rounded-2xl overflow-hidden shadow-md">
-          <Image
-            src="/images/nouveaute.jpg"
-            width={310}
-            height={180}
-            alt="Image Nouveauté"
-            className="w-full h-auto"
-          />
-          <span className="absolute top-4 left-4 bg-[#EAB1D9] text-white text-xs font-medium px-3 py-1 rounded-full">
+        <h1 className="text-xl md:text-3xl font-semibold mb-2">Notre dernier reportage</h1>
+        <div className="relative">
+          <VideoPreview />
+          <span className="absolute top-4 left-4 bg-[#EAB1D9] text-white text-xs md:text-base font-medium px-3 py-1 rounded-full z-10">
             Nouveauté
           </span>
         </div>
       </section>
 
       {/* CATÉGORIES */}
-      <section className="mt-8 w-full">
+      <section className="mt-8 md:mt-12 w-full">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-gray-800">Catégories</h2>
+          <h2 className="text-xl md:text-2xl font-semibold text-gray-800">Catégories</h2>
           <Link href="/recherche" className="text-blue-600 text-sm font-medium hover:underline">
             Voir tout
           </Link>
         </div>
-        <div className="flex gap-x-3 overflow-x-scroll hide-scrollbar">
+        <div className="flex gap-x-3 md:gap-x-6 overflow-x-scroll hide-scrollbar">
           {categories.map(cat => (
             <Link
               key={cat.key}
               href={cat.href}
               className="flex-shrink-0 flex flex-col items-center"
             >
-              <div className={`${cat.bgColor} w-[90px] h-[88px] rounded-lg flex items-center justify-center shadow-sm mb-2`}>
-                <Image src={cat.image} width={90} height={80} alt={cat.label} />
+              <div className={`${cat.bgColor} w-[90px] h-[88px] md:w-[140px] md:h-[130px] rounded-lg flex items-center justify-center shadow-sm mb-2`}>
+                <Image src={cat.image} width={140} height={130} alt={cat.label} />
               </div>
-              <p className="text-sm text-gray-700 mb-4 text-center">{cat.label}</p>
+              <p className="text-sm md:text-lg text-gray-700 mb-4 text-center">{cat.label}</p>
             </Link>
           ))}
         </div>
       </section>
 
       {/* CTA PROFESSIONNEL */}
-      <section className="mt-4 mb-8 w-full">
-        <div className="relative h-[180px] bg-[#4069E1] rounded-[20px] p-6 flex items-center overflow-hidden">
-          <div className="flex-1 text-white z-10">
-            <h3 className="text-sm font-semibold leading-tight mb-3">
+      <section className="mt-4 md:mt-8 mb-8 w-full">
+        <div className="relative h-[180px] md:h-[240px] bg-[#4069E1] rounded-[20px] pl-6 pr-8 md:p-10 flex items-center overflow-hidden">
+          <div className="flex-1 text-white z-10 pr-8 md:pr-20">
+            <h3 className="text-sm md:text-xl font-semibold leading-tight mb-3">
               Besoin de parler à un<br />professionnel ?
             </h3>
-            <p className="text-sm pb-2 opacity-90">
+            <p className="text-sm md:text-lg md:pr-14 pb-2 opacity-90">
               Rejoignez un live en groupe pour discuter avec un professionnel bienveillant, à votre rythme.
             </p>
             <Link
               href="/visio"
-              className="inline-block bg-white text-[#4069E1] text-sm font-medium px-6 py-2.5 rounded-[8px] hover:bg-gray-100 transition"
+              className="inline-block bg-white text-[#4069E1] text-sm md:text-base font-medium px-6 py-2.5 rounded-[8px] hover:bg-gray-100 transition"
             >
               Voir les visioconférences
             </Link>
@@ -138,8 +283,8 @@ export default function Home() {
             <Image 
               src={proImg} 
               alt="Consultation pro" 
-              width={130} 
-              height={150}
+              width={180} 
+              height={200}
               className="object-cover h-full" 
             />
           </div>
@@ -147,18 +292,18 @@ export default function Home() {
       </section>
 
       {/* LES PLUS POPULAIRES */}
-      <section className="mt-8 mb-8 w-full">
-        <h2 className="text-xl font-semibold text-black mb-6">Les plus populaires</h2>
-        <div className="flex flex-col gap-4">
+      <section className="mt-8 md:mt-12 mb-8 w-full">
+        <h2 className="text-xl md:text-2xl font-semibold text-black mb-6">Les plus populaires</h2>
+        <div className="flex flex-col gap-4 md:gap-8">
           {articles.length > 0 ? (
             articles.slice(0, 5).map((article) => (
               <Link
                 key={article.id}
                 href={`/article?id=${article.id}`}
-                className="flex bg-white rounded-[16px] shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition"
+                className="flex bg-white rounded-[16px] shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition md:text-lg md:p-6"
               >
                 {/* Image container */}
-                <div className="relative pl-3 pt-2 flex-shrink-0 w-[100px] h-[130px]">
+                <div className="relative pl-3 pt-2 flex-shrink-0 w-[100px] h-[130px] md:w-[180px] md:h-[220px] md:pr-4">
                   {article.image_url ? (
                     <img
                       src={article.image_url}
@@ -171,7 +316,7 @@ export default function Home() {
                     </div>
                   )}
                   {/* Badge catégorie */}
-                  <span className="absolute top-3 left-4 bg-yellow-100 text-gray-800 text-[10px] font-medium px-2 py-0.5 rounded">
+                  <span className="absolute top-3 left-4 bg-yellow-100 text-gray-800 text-[10px] md:text-xs font-medium px-2 py-0.5 md:mt-4 md:ml-3 rounded">
                     {article.category}
                   </span>
                 </div>
@@ -202,16 +347,16 @@ export default function Home() {
                   </div>
 
                   <div className="pr-6">
-                    <h3 className="text-[15px] font-bold text-black mb-2 leading-tight line-clamp-2">
+                    <h3 className="text-[15px] md:text-xl font-bold text-black mb-2 leading-tight line-clamp-2">
                       {article.title}
                     </h3>
-                    <p className="text-gray-600 text-xs leading-relaxed line-clamp-3 mb-3">
+                    <p className="text-gray-600 text-xs md:text-base leading-relaxed line-clamp-3 mb-3">
                       {article.content}
                     </p>
                   </div>
 
                   {/* Meta information */}
-                  <div className="flex items-center gap-4 text-[11px] text-gray-500">
+                  <div className="flex items-center gap-4 text-[11px] md:text-sm text-gray-500">
                     <span className="flex items-center gap-1">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <circle cx="12" cy="12" r="10"/>

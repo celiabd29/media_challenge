@@ -75,7 +75,7 @@ export default function Video() {
   }
 
   return (
-    <main className="min-h-screen bg-white pb-20">
+    <main className="min-h-screen bg-white pb-20 max-w-3xl md:max-w-4xl lg:max-w-5xl mx-auto lg:px-16">
       {/* HEADER */}
       <header className="flex items-center justify-between">
     
@@ -83,7 +83,7 @@ export default function Video() {
 
       {/* LECTEUR VIDÉO AVEC CONTRÔLES PERSONNALISÉS */}
       <div 
-        className="relative w-full h-[200px] rounded-bl-xl rounded-br-xl overflow-hidden bg-black"
+        className="relative w-full h-[200px] md:h-[400px] lg:h-[500px] rounded-bl-xl rounded-br-xl overflow-hidden bg-black"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
@@ -92,7 +92,7 @@ export default function Video() {
           ref={videoRef}
           src={VIDEO_SRC}
           poster="/images/ecoute2.png" // Aussi dans public/images/
-          className="w-full h-[200px] object-cover cursor-pointer"
+          className="w-full h-[200px] md:h-[400px] lg:h-[500px] object-cover cursor-pointer"
           onClick={handleVideoClick}
           onPlay={handlePlay}
           onPause={handlePause}
@@ -162,18 +162,18 @@ export default function Video() {
       </div>
 
       {/* TITRE & DESCRIPTION */}
-      <section className="mt-6 px-4">
-        <h1 className="text-2xl font-semibold text-black">
+      <section className="mt-6 px-4 md:px-4">
+        <h1 className="text-2xl md:text-4xl font-semibold text-black">
           Le plaisir sans tabou
         </h1>
-        <p className="mt-2 text-gray-700 text-sm leading-relaxed">
+        <p className="mt-2 text-gray-700 text-sm md:text-lg leading-relaxed">
           Cette vidéo aborde le plaisir avec simplicité et bienveillance, en levant les tabous qui l'entourent souvent. Elle invite à comprendre les sensations, à parler librement de ses envies, et à découvrir que le plaisir fait naturellement partie de la vie. Un guide pour démystifier et valoriser cette expérience intime, dans le respect de soi et des autres.
         </p>
       </section>
 
       {/* CTA QUIZ */}
-      <Link href="/quiz" className="mt-6 block px-4">
-        <div className="flex items-center bg-[#E9C4DE] h-[89px] rounded-[8px] px-4 shadow-sm hover:shadow-md transition-shadow">
+      <Link href="/quiz" className="mt-6 block px-4 md:px-4">
+        <div className="flex items-center bg-[#E9C4DE] h-[89px] md:h-[120px] rounded-[8px] px-4 md:px-8 shadow-sm hover:shadow-md transition-shadow">
           <div className="">
             <Image
               src={ecouteImg}
@@ -184,7 +184,7 @@ export default function Video() {
             />
           </div>
           
-          <span className="ml-4 flex-1 text-white font-medium">
+          <span className="ml-4 flex-1 text-white font-medium md:text-xl">
             Effectuez le quiz
           </span>
           

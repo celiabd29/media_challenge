@@ -36,7 +36,7 @@ export default function ArticlePage() {
   }
 
   return (
-    <div className="max-w-xl mx-auto bg-white pb-20 min-h-screen text-gray-800">
+    <div className="w-full bg-white pb-20 min-h-screen text-gray-800">
       {article.image_url && (
         <div className="relative">
           {/* Boutons retour et favoris superposés */}
@@ -63,13 +63,13 @@ export default function ArticlePage() {
           <img
             src={article.image_url}
             alt="Article"
-            className="rounded-b-xl mb-6 w-full object-cover max-h-[260px]"
+            className="rounded-b-xl mb-6 w-full object-cover max-h-[260px] md:max-h-[400px] lg:max-h-[500px]"
           />
         </div>
       )}
-      <h1 className="text-2xl font-bold mb-4">{article.title}</h1>
+      <h1 className="text-2xl md:text-4xl font-bold mb-4 md:px-8">{article.title}</h1>
 
-      <div className=" px-4 pb-3.5 text-sm leading-relaxed">
+      <div className="px-4 md:px-0 pb-3.5 text-sm md:text-lg md:px-8 leading-relaxed">
         {article.content.split("\n").map((para, i) => (
           <p key={i}>
             {para.trim().startsWith("*") ? (
@@ -81,9 +81,9 @@ export default function ArticlePage() {
         ))}
       </div>
 
-      <div className="">
-        <Link href="/quiz" className="block px-4">
-          <div className="flex items-center bg-[#E9C4DE] h-[89px] rounded-[8px] px-4 shadow-sm hover:shadow-md transition-shadow">
+      <div className="md:px-8">
+        <Link href="/quiz" className="block px-4 md:px-0">
+          <div className="flex items-center bg-[#E9C4DE] h-[89px] md:h-[120px] rounded-[8px] px-4 md:px-8 shadow-sm hover:shadow-md transition-shadow">
             <div>
               <Image
                 src={ecouteImg}
@@ -94,7 +94,7 @@ export default function ArticlePage() {
               />
             </div>
             
-            <span className="ml-4 flex-1 text-white font-medium">
+            <span className="ml-4 flex-1 text-white font-medium md:text-xl">
               Effectuez le quiz
             </span>
             

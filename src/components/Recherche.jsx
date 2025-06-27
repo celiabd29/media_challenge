@@ -46,7 +46,7 @@ export default function Recherche() {
     <div className="flex flex-col min-h-screen pb-20 bg-white px-4 py-6">
       {/* En‐tête */}
       <header className="flex items-center justify-between mb-4">
-        <h1 className="text-black font-medium text-2xl leading-6">Recherche</h1>
+        <h1 className="text-black font-medium text-2xl md:text-3xl leading-6">Recherche</h1>
       </header>
 
       {/* barre recherche */}
@@ -54,13 +54,13 @@ export default function Recherche() {
 
       {/* categorie */}
       <section className="flex-1 overflow-y-auto">
-        <h2 className="text-black font-medium text-lg pb-2">Catégories</h2>
-        <div className="grid grid-cols-2 gap-2">
+        <h2 className="text-black font-medium text-lg md:text-xl pb-2">Catégories</h2>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
           {categories.map((cat) => (
             <div
               key={cat.key}
               onClick={() => handleCategoryClick(cat)}
-              className={`relative h-24 md:h-40 rounded-lg overflow-hidden cursor-pointer transition-all duration-200 hover:scale-90 active:scale-80 ${cat.bgColor}`}
+              className={`relative h-24 md:h-52 rounded-lg overflow-hidden cursor-pointer transition-all duration-200 hover:scale-90 active:scale-80 ${cat.bgColor}`}
             >
               {cat.image && (
                 <Image
@@ -74,7 +74,7 @@ export default function Recherche() {
               <div className="absolute inset-0 backdrop-invert bg-black/10  backdrop-opacity-10"></div>
               
               <div className="absolute inset-0 flex items-end">
-                <span className="w-full text-center text-white py-2 font-medium z-10">
+                <span className="w-full text-center text-white py-2 font-medium z-10 text-base md:text-lg">
                   {cat.label}
                 </span>
               </div>
