@@ -9,10 +9,4 @@ export default function ArticleWrapper() {
       <ArticlePage />
     </Suspense>
   );
-export default function ArticleWrapper() {
-  return (
-    <Suspense fallback={<p>Chargement de l'article...</p>}>
-      <ArticlePage />
-    </Suspense>
-  );
 }
