@@ -75,7 +75,7 @@ export default function Video() {
   }
 
   return (
-    <main className="min-h-screen bg-white pb-20 max-w-3xl md:max-w-4xl lg:max-w-5xl mx-auto lg:px-16">
+    <main className="min-h-screen bg-white pb-20 w-full">
       {/* HEADER */}
       <header className="flex items-center justify-between">
     
