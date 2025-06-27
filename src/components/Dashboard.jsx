@@ -92,6 +92,7 @@ export default function Dashboard() {
         setPodcasts((prev) => prev.filter((p) => p.id !== id));
     }
   };
+  console.log("hello");
 
   return (
     <div className="min-h-screen bg-[#F5F7FB] p-4 flex flex-col gap-6">
