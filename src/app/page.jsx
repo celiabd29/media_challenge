@@ -219,7 +219,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-white px-4 pb-20 max-w-3xl md:max-w-4xl lg:max-w-5xl mx-auto">
+    <main className="min-h-screen bg-white px-2 md:px-8 lg:px-16 pb-20 w-full">
       {/* HEADER */}
       <header className="pt-8 flex items-center justify-between">
         <p className="text-lg md:text-2xl text-gray-700">
