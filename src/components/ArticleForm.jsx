@@ -1,13 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "../supabase/supabaseClient";
 
 export function ArticleForm({ onArticleCreated }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("");
+  const [categories, setCategories] = useState([]);
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // 🔄 Charger les catégories depuis Supabase
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const { data, error } = await supabase.from("categories").select("*");
+      if (error) {
+        console.error("Erreur de chargement des catégories :", error.message);
+      } else {
+        setCategories(data);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,13 +54,11 @@ export function ArticleForm({ onArticleCreated }) {
         throw new Error("Utilisateur non authentifié");
       }
 
-      console.log("🧪 Utilisateur connecté :", user?.id);
-
       const { error: insertError } = await supabase.from("articles").insert({
         title,
         content,
         image_url: urlData.publicUrl,
-        category,
+        category_id: category,
         author_id: user.id,
       });
 
@@ -55,6 +67,7 @@ export function ArticleForm({ onArticleCreated }) {
         throw insertError;
       }
 
+      // Reset du formulaire
       setTitle("");
       setContent("");
       setCategory("");
@@ -80,6 +93,7 @@ export function ArticleForm({ onArticleCreated }) {
           required
         />
       </div>
+
       <div className="mb-4">
         <label className="block text-gray-700 mb-2">Contenu</label>
         <textarea
@@ -89,16 +103,24 @@ export function ArticleForm({ onArticleCreated }) {
           required
         />
       </div>
+
       <div className="mb-4">
         <label className="block text-gray-700 mb-2">Catégorie</label>
-        <input
-          type="text"
+        <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
           className="w-full p-2 border rounded"
           required
-        />
+        >
+          <option value="">Sélectionnez une catégorie</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.id}>
+              {cat.name}
+            </option>
+          ))}
+        </select>
       </div>
+
       <div className="mb-4">
         <label className="block text-gray-700 mb-2">Image</label>
         <input
@@ -109,7 +131,9 @@ export function ArticleForm({ onArticleCreated }) {
           required
         />
       </div>
+
       {error && <p className="text-red-500 mb-4">{error}</p>}
+
       <button
         type="submit"
         disabled={loading}
