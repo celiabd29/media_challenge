@@ -5,6 +5,7 @@ import BottomNavbar from "../components/BottomNavbar";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "../supabase/supabaseClient";
+import { useAuth } from "../contexts/AuthContext";
 
 import ecouteImg       from '../assets/img/ecoute2.png';
 import emotionImg      from '../assets/img/emotion2.png';
@@ -22,8 +23,38 @@ const categories = [
 ];
 
 export default function Home() {
-  const userName = "(nom de utilisateur)"; // À remplacer
+  const { user, loading } = useAuth();
+  const [userName, setUserName] = useState("");
   const [articles, setArticles] = useState([]);
+
+  // Fonction de partage via Web Share API
+  const handleShare = (article) => {
+    if (!navigator.share) {
+      alert("Le partage n'est pas supporté sur ce navigateur.");
+      return;
+    }
+    navigator.share({
+      title: article.title,
+      text: 'Découvrez ce contenu !',
+      url: window.location.href + `/article?id=${article.id}`,
+    })
+    .catch((error) => console.error('Erreur de partage :', error));
+  };
+
+  useEffect(() => {
+    const fetchUserName = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id;
+      if (!userId) return;
+      const { data } = await supabase
+        .from("users")
+        .select("nom")
+        .eq("id", userId)
+        .maybeSingle();
+      if (data && data.nom) setUserName(data.nom);
+    };
+    fetchUserName();
+  }, []);
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -41,17 +72,18 @@ export default function Home() {
       {/* HEADER */}
       <header className="pt-8 flex items-center justify-between">
         <p className="text-lg text-gray-700">
-          Bonjour <span className="font-semibold">{userName}</span> 👋
+          Bonjour👋 <br /> <span className="font-semibold">{userName || "!"}</span>
         </p>
       </header>
 
       {/* CARTE "Nouveauté" */}
       <section className="mt-6">
-        <div className="relative h-[200px] rounded-2xl overflow-hidden shadow-md">
+        <h1 className="text-xl">Notre dernier reportage</h1>
+        <div className="relative h-[180px] rounded-2xl overflow-hidden shadow-md">
           <Image
             src="/images/nouveaute.jpg"
             width={310}
-            height={160}
+            height={180}
             alt="Image Nouveauté"
             className="w-full h-auto"
           />
@@ -85,19 +117,19 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA PROFESSIONNEL - Style selon maquette */}
-      <section className="mt-6 mb-8 w-full">
+      {/* CTA PROFESSIONNEL */}
+      <section className="mt-4 mb-8 w-full">
         <div className="relative h-[180px] bg-[#4069E1] rounded-[20px] p-6 flex items-center overflow-hidden">
           <div className="flex-1 text-white z-10">
-            <h3 className="text-lg font-semibold leading-tight mb-3">
+            <h3 className="text-sm font-semibold leading-tight mb-3">
               Besoin de parler à un<br />professionnel ?
             </h3>
-            <p className="text-sm opacity-90 mb-4 pr-8">
+            <p className="text-sm pb-2 opacity-90">
               Rejoignez un live en groupe pour discuter avec un professionnel bienveillant, à votre rythme.
             </p>
             <Link
               href="/visio"
-              className="inline-block bg-white text-[#4069E1] text-sm font-medium px-6 py-2.5 rounded-full hover:bg-gray-100 transition"
+              className="inline-block bg-white text-[#4069E1] text-sm font-medium px-6 py-2.5 rounded-[8px] hover:bg-gray-100 transition"
             >
               Voir les visioconférences
             </Link>
@@ -106,15 +138,15 @@ export default function Home() {
             <Image 
               src={proImg} 
               alt="Consultation pro" 
-              width={180} 
-              height={180}
+              width={130} 
+              height={150}
               className="object-cover h-full" 
             />
           </div>
         </div>
       </section>
 
-      {/* LES PLUS POPULAIRES - Style selon maquette */}
+      {/* LES PLUS POPULAIRES */}
       <section className="mt-8 mb-8 w-full">
         <h2 className="text-xl font-semibold text-black mb-6">Les plus populaires</h2>
         <div className="flex flex-col gap-4">
@@ -153,8 +185,15 @@ export default function Home() {
                         <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
                       </svg>
                     </button>
-                    <button className="bg-gray-50 rounded-full p-2 w-9 h-9 flex items-center justify-center hover:bg-gray-100 shadow-md">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleShare(article);
+                      }}
+                      className="bg-gray-50 rounded-full p-2 w-9 h-9 flex items-center justify-center hover:bg-gray-100 shadow-md"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                           stroke="#666" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M4 12v4a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4v-4"/>
                         <polyline points="16 6 12 2 8 6"/>
                         <line x1="12" y1="2" x2="12" y2="15"/>
@@ -176,13 +215,14 @@ export default function Home() {
                     <span className="flex items-center gap-1">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <circle cx="12" cy="12" r="10"/>
+
                         <polyline points="12,6 12,12 16,14"/>
                       </svg>
                       5min
                     </span>
                     <span className="flex items-center gap-1">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/>
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4aэ/2 2 0 0 0-2-2z"/>
                         <polyline points="16,6 12,2 8,6"/>
                         <line x1="12" y1="2" x2="12" y2="15"/>
                       </svg>
@@ -206,9 +246,8 @@ export default function Home() {
         </div>
       </section>
 
-
       {/* NAVBAR FIXE EN BAS */}
-      <div className="fixed bottom-0 left-0 w-full">
+      <div className="fixed bottom-0 left-0 w-full z-50">
         <BottomNavbar />
       </div>
     </main>
