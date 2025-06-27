@@ -6,7 +6,40 @@ import { supabase } from "../supabase/supabaseClient";
 export default function Dashboard() {
   const router = useRouter();
   const [user, setUser] = useState(null);
+  const [articles, setArticles] = useState([]);
+  const [videos, setVideos] = useState([]);
+  const [podcasts, setPodcasts] = useState([]);
 
+  // Récupérer les contenus créés par l'utilisateur
+  useEffect(() => {
+    const fetchContent = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const userId = session?.user?.id;
+
+      const { data: a } = await supabase
+        .from("articles")
+        .select("*")
+        .eq("author_id", userId);
+      const { data: v } = await supabase
+        .from("videos")
+        .select("*")
+        .eq("author_id", userId);
+      const { data: p } = await supabase
+        .from("podcasts")
+        .select("*")
+        .eq("author_id", userId);
+
+      setArticles(a || []);
+      setVideos(v || []);
+      setPodcasts(p || []);
+    };
+
+    fetchContent();
+  }, []);
+
+  // Récupérer les infos utilisateur
   useEffect(() => {
     const fetchUser = async () => {
       const {
@@ -44,6 +77,22 @@ export default function Dashboard() {
     router.push("/login");
   };
 
+  const handleDelete = async (table, id) => {
+    if (!confirm("Supprimer ce contenu ?")) return;
+    const { error } = await supabase.from(table).delete().eq("id", id);
+    if (error) {
+      alert("❌ Erreur lors de la suppression");
+      console.error(error);
+    } else {
+      if (table === "articles")
+        setArticles((prev) => prev.filter((a) => a.id !== id));
+      if (table === "videos")
+        setVideos((prev) => prev.filter((v) => v.id !== id));
+      if (table === "podcasts")
+        setPodcasts((prev) => prev.filter((p) => p.id !== id));
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#F5F7FB] p-4 flex flex-col gap-6">
       {/* Profil utilisateur */}
@@ -65,7 +114,7 @@ export default function Dashboard() {
               type="password"
               value="password"
               readOnly
-              className="w-full mt-1 p-2 border rounded bg-gray-100 cursor-not-allowed"
+              className="w-full mt-1 p-2 border rounded bg-gray-100 cursor-not-allowed placeholder-gray-500"
             />
           </div>
           <button
@@ -122,13 +171,110 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Footer navigation */}
-      <nav className="fixed bottom-0 left-0 w-full bg-white border-t shadow-md flex justify-around py-3">
-        <button className="text-gray-500 hover:text-blue-600">🏠</button>
-        <button className="text-gray-500 hover:text-blue-600">🔍</button>
-        <button className="text-gray-500 hover:text-blue-600">📥</button>
-        <button className="text-blue-600 font-bold">👤</button>
-      </nav>
+      {/* Gérer les contenus publiés */}
+      <div className="bg-white rounded-2xl shadow p-6">
+        <h3 className="text-lg font-semibold mb-4 text-gray-800">
+          Mes contenus
+        </h3>
+        <div className="space-y-6">
+          {/* Articles */}
+          <div>
+            <h4 className="text-sm font-semibold text-gray-600 mb-2">
+              Articles
+            </h4>
+            {articles.length === 0 ? (
+              <p className="text-gray-500 text-sm">Aucun article publié.</p>
+            ) : (
+              articles.map((a) => (
+                <div
+                  key={a.id}
+                  className="border rounded p-4 flex flex-col gap-2 bg-gray-50"
+                >
+                  <span className="text-gray-800 font-medium">{a.title}</span>
+                  <div className="flex gap-3">
+                    <button
+                      className="text-sm text-blue-600"
+                      onClick={() => router.push(`/modifier/article/${a.id}`)}
+                    >
+                      ✏️ Modifier
+                    </button>
+                    <button
+                      className="text-sm text-red-500"
+                      onClick={() => handleDelete("articles", a.id)}
+                    >
+                      🗑️ Supprimer
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Vidéos */}
+          <div>
+            <h4 className="text-sm font-semibold text-gray-600 mb-2">Vidéos</h4>
+            {videos.length === 0 ? (
+              <p className="text-gray-500 text-sm">Aucune vidéo publiée.</p>
+            ) : (
+              videos.map((v) => (
+                <div
+                  key={v.id}
+                  className="border rounded p-4 flex flex-col gap-2 bg-gray-50"
+                >
+                  <span className="text-gray-800 font-medium">{v.title}</span>
+                  <div className="flex gap-3">
+                    <button
+                      className="text-sm text-blue-600"
+                      onClick={() => router.push(`/modifier/video/${v.id}`)}
+                    >
+                      ✏️ Modifier
+                    </button>
+                    <button
+                      className="text-sm text-red-500"
+                      onClick={() => handleDelete("videos", v.id)}
+                    >
+                      🗑️ Supprimer
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Podcasts */}
+          <div>
+            <h4 className="text-sm font-semibold text-gray-600 mb-2">
+              Podcasts
+            </h4>
+            {podcasts.length === 0 ? (
+              <p className="text-gray-500 text-sm">Aucun podcast publié.</p>
+            ) : (
+              podcasts.map((p) => (
+                <div
+                  key={p.id}
+                  className="border rounded p-4 flex flex-col gap-2 bg-gray-50"
+                >
+                  <span className="text-gray-800 font-medium">{p.title}</span>
+                  <div className="flex gap-3">
+                    <button
+                      className="text-sm text-blue-600"
+                      onClick={() => router.push(`/modifier/podcast/${p.id}`)}
+                    >
+                      ✏️ Modifier
+                    </button>
+                    <button
+                      className="text-sm text-red-500"
+                      onClick={() => handleDelete("podcasts", p.id)}
+                    >
+                      🗑️ Supprimer
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
