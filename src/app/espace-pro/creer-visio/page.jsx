@@ -12,9 +12,30 @@ export default function CreerVisio() {
   const [heure, setHeure] = useState("");
   const [image, setImage] = useState(null);
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // ✅ Génére un lien de visio via API /create-whereby-room
+  const generateLink = async () => {
+    setLoading(true);
+    setMessage("");
+    try {
+      const res = await fetch("/api/create-whereby-room", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Erreur lors de la génération du lien");
+      setLien(data.hostRoomUrl || data.roomUrl || "");
+    } catch (err) {
+      setMessage("❌ " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMessage("");
 
     const {
       data: { session },
@@ -68,7 +89,7 @@ export default function CreerVisio() {
       <h1 className="text-xl font-semibold mb-4">Créer une visio</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="mt-3">
+        <div>
           <label className="text-sm font-medium text-gray-600">Titre</label>
           <input
             type="text"
@@ -79,7 +100,7 @@ export default function CreerVisio() {
             required
           />
         </div>
-        <div className="mt-2">
+        <div>
           <label className="text-sm font-medium text-gray-600">Description</label>
           <textarea
             className="w-full border px-3 py-2 rounded mt-1 text-gray-600"
@@ -89,18 +110,28 @@ export default function CreerVisio() {
             required
           />
         </div>
-        <div className="mt-2">
-          <label className="text-sm font-medium text-gray-600">Lien de la visioconférence</label>
+        <div>
+          <label className="text-sm font-medium text-gray-600 flex justify-between items-center">
+            Lien de la visioconférence
+            <button
+              type="button"
+              onClick={generateLink}
+              disabled={loading}
+              className="text-blue-600 text-xs underline ml-2"
+            >
+              {loading ? "Génération en cours..." : "Générer un lien automatique"}
+            </button>
+          </label>
           <input
             type="url"
             className="w-full border px-3 py-2 rounded mt-1 text-gray-600"
-            placeholder="Coller-ici"
+            placeholder="https://whereby.com/..."
             value={lien}
             onChange={(e) => setLien(e.target.value)}
             required
           />
         </div>
-        <div className="mt-2">
+        <div>
           <label className="text-sm font-medium text-gray-600">Date</label>
           <input
             type="date"
@@ -110,7 +141,7 @@ export default function CreerVisio() {
             required
           />
         </div>
-        <div className="mt-2">
+        <div>
           <label className="text-sm font-medium text-gray-600">Heure</label>
           <input
             type="time"
@@ -120,7 +151,7 @@ export default function CreerVisio() {
             required
           />
         </div>
-        <div className="mt-2">
+        <div>
           <label className="text-sm font-medium text-gray-600">Image de couverture</label>
           <input
             type="file"
