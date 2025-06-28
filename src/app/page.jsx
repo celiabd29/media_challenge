@@ -223,7 +223,7 @@ export default function Home() {
       {/* HEADER */}
       <header className="pt-8 flex items-center justify-between">
         <p className="text-lg md:text-2xl text-gray-700">
-          Bonjour👋 <br /> <span className="font-semibold">{userName || "!"}</span>
+          Bonjour 👋 <br /> <span className="font-semibold">{userName || " "}</span>
         </p>
       </header>
 
@@ -377,7 +377,7 @@ export default function Home() {
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                       </svg>
-                      (nbr de like)
+                      {article.article_like_counts?.like_count ?? 0}
                     </span>
                   </div>
                 </div>

@@ -7,6 +7,7 @@ import Image from "next/image";
 import { supabase } from "../supabase/supabaseClient";
 import NavShare from "./NavShare";
 import ecouteImg from "../assets/img/ecoute2.png";
+import { Heart } from "lucide-react";
 
 const VIDEO_SRC = "/video/fleur.mp4";
 const VIDEO_ID = 1; // À adapter dynamiquement si besoin
@@ -17,6 +18,10 @@ export default function Video() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [showControls, setShowControls] = useState(true);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [userId, setUserId] = useState(null);
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+
   const videoRef = useRef(null);
   const hideControlsTimeoutRef = useRef(null);
 
@@ -61,13 +66,13 @@ export default function Video() {
 
   const toggleBookmark = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    const userId = session?.user?.id;
-    if (!userId || !VIDEO_ID) return;
+    const uid = session?.user?.id;
+    if (!uid || !VIDEO_ID) return;
 
     const { data: existing } = await supabase
       .from("favoris_videos")
       .select("*")
-      .eq("user_id", userId)
+      .eq("user_id", uid)
       .eq("video_id", VIDEO_ID)
       .single();
 
@@ -75,13 +80,13 @@ export default function Video() {
       await supabase
         .from("favoris_videos")
         .delete()
-        .eq("user_id", userId)
+        .eq("user_id", uid)
         .eq("video_id", VIDEO_ID);
       setIsBookmarked(false);
     } else {
       await supabase.from("favoris_videos").insert([
         {
-          user_id: userId,
+          user_id: uid,
           video_id: VIDEO_ID,
           title: "Le plaisir sans tabou",
           description: "Cette vidéo aborde le plaisir avec simplicité et bienveillance...",
@@ -92,24 +97,64 @@ export default function Video() {
     }
   };
 
+  const toggleLike = async () => {
+    if (!userId) return;
+
+    if (liked) {
+      await supabase
+        .from("likes")
+        .delete()
+        .eq("user_id", userId)
+        .eq("content_id", VIDEO_ID)
+        .eq("content_type", "video");
+    } else {
+      await supabase.from("likes").insert([
+        { user_id: userId, content_id: VIDEO_ID, content_type: "video" }
+      ]);
+    }
+
+    setLiked(!liked);
+    fetchLikeCount(); // refresh compteur
+  };
+
+  const fetchLikeCount = async () => {
+    const { count } = await supabase
+      .from("likes")
+      .select("*", { count: "exact", head: true })
+      .eq("content_id", VIDEO_ID)
+      .eq("content_type", "video");
+
+    setLikeCount(count || 0);
+  };
+
   useEffect(() => {
-    const checkIfBookmarked = async () => {
+    const init = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      const userId = session?.user?.id;
-      console.log("USER ID:", userId);
+      const uid = session?.user?.id;
+      setUserId(uid);
 
-      if (!userId || !VIDEO_ID) return;
+      if (!uid || !VIDEO_ID) return;
 
-      const { data: existing } = await supabase
+      const { data: bookmark } = await supabase
         .from("favoris_videos")
         .select("*")
-        .eq("user_id", userId)
+        .eq("user_id", uid)
         .eq("video_id", VIDEO_ID)
         .single();
+      setIsBookmarked(!!bookmark);
 
-      setIsBookmarked(!!existing);
+      const { data: like } = await supabase
+        .from("likes")
+        .select("*")
+        .eq("user_id", uid)
+        .eq("content_id", VIDEO_ID)
+        .eq("content_type", "video");
+      setLiked(like.length > 0);
+
+      fetchLikeCount();
     };
-    checkIfBookmarked();
+
+    init();
   }, []);
 
   return (
@@ -157,24 +202,35 @@ export default function Video() {
               </svg>
             </button>
 
-            <button
-              onClick={toggleBookmark}
-              className="p-3 bg-white rounded-full shadow-xl hover:bg-white/30 transition-all duration-200"
-            >
-              <svg
-                className="w-5 h-5"
-                fill={isBookmarked ? "currentColor" : "none"}
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            <div className="flex gap-2">
+              {/* Like button */}
+              <button
+                onClick={toggleLike}
+                className="p-3 bg-white rounded-full shadow-xl hover:bg-white/30 transition-all duration-200"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
-                />
-              </svg>
-            </button>
+                <Heart fill={liked ? "red" : "none"} color="red" />
+              </button>
+
+              {/* Bookmark button */}
+              <button
+                onClick={toggleBookmark}
+                className="p-3 bg-white rounded-full shadow-xl hover:bg-white/30 transition-all duration-200"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill={isBookmarked ? "currentColor" : "none"}
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <div className="absolute inset-0 flex items-center justify-center">
@@ -202,6 +258,7 @@ export default function Video() {
         <p className="mt-2 text-gray-700 text-sm md:text-lg leading-relaxed">
           Cette vidéo aborde le plaisir avec simplicité et bienveillance... (texte résumé)
         </p>
+        <p className="mt-2 text-gray-500 text-sm">{likeCount} ❤️</p>
       </section>
 
       {/* Quiz */}
