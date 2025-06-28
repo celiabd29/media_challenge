@@ -1,16 +1,53 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/supabase/supabaseClient";
 import { useSearchParams, useRouter } from "next/navigation";
+import ecouteImg from '../assets/img/ecoute2.png';
+import communicationImg from '../assets/img/communication.png';
+import protectionImg from '../assets/img/protection.png';
+import identiteImg from '../assets/img/identite.png';
+import emotionImg from '../assets/img/emotion2.png';
+
+const imageMap = {
+  'ecoute2.png': ecouteImg,
+  'communication.png': communicationImg,
+  'protection.png': protectionImg,
+  'identite.png': identiteImg,
+  'emotion2.png': emotionImg,
+};
 
 const getResultMessage = (score, total) => {
-  if (score === 0) return { title: "Oups...", msg: "Aucune bonne réponse. C'est l'intention qui compte ! Allez, on réessaie ?" };
-  if (score === 1) return { title: "Pas tout à fait ça…", msg: "Tu as 1 bonne réponse. Tu es sur la bonne voie, continue !" };
-  if (score === 2) return { title: "Pas mal !", msg: "Tu as 2 bonnes réponses. Un petit effort de plus et ce sera parfait !" };
-  if (score === 3) return { title: "Bien joué !", msg: "Tu as 3 bonnes réponses. Tu maîtrises une bonne partie du sujet !" };
-  if (score === 4) return { title: "Excellent !", msg: "Tu as 4 bonnes réponses. Encore une petite marche vers la perfection !" };
-  if (score === total) return { title: "Bravo !", msg: "Tu as fait un sans faute ! 5/5, tu es incollable !" };
+  if (score === 0)
+    return {
+      title: "Oups...",
+      msg: "Aucune bonne réponse. C'est l'intention qui compte ! Allez, on réessaie ?",
+    };
+  if (score === 1)
+    return {
+      title: "Pas tout à fait ça…",
+      msg: "Tu as 1 bonne réponse. Tu es sur la bonne voie, continue !",
+    };
+  if (score === 2)
+    return {
+      title: "Pas mal !",
+      msg: "Tu as 2 bonnes réponses. Un petit effort de plus et ce sera parfait !",
+    };
+  if (score === 3)
+    return {
+      title: "Bien joué !",
+      msg: "Tu as 3 bonnes réponses. Tu maîtrises une bonne partie du sujet !",
+    };
+  if (score === 4)
+    return {
+      title: "Excellent !",
+      msg: "Tu as 4 bonnes réponses. Encore une petite marche vers la perfection !",
+    };
+  if (score === total)
+    return {
+      title: "Bravo !",
+      msg: "Tu as fait un sans faute ! 5/5, tu es incollable !",
+    };
   return { title: "Résultat", msg: "" };
 };
 
@@ -31,7 +68,7 @@ export default function QuizPage() {
       setLoading(true);
       let { data, error } = await supabase
         .from("questions")
-        .select("id, question_text")
+        .select("id, question_text, image_url")
         .order("id", { ascending: true });
       if (error) {
         setQuestions([]);
@@ -67,7 +104,9 @@ export default function QuizPage() {
     if (!selectedAnswer) {
       setSelectedAnswer(id);
       setShowCorrection(true);
-      const isCorrect = questions[currentIndex].answers.find(a => a.id === id)?.is_correct;
+      const isCorrect = questions[currentIndex].answers.find(
+        (a) => a.id === id
+      )?.is_correct;
       if (isCorrect) setScore((prev) => prev + 1);
       setTimeout(() => {
         if (currentIndex === questions.length - 1) {
@@ -91,20 +130,16 @@ export default function QuizPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-pink-100 px-4">
-        <div className="max-w-xl w-full bg-white p-6 rounded-2xl shadow-lg">
-          <p>Chargement...</p>
-        </div>
+      <div className="min-h-screen bg-[#E9C4DE] flex items-center justify-center">
+        <div className="text-white text-lg">Chargement...</div>
       </div>
     );
   }
 
   if (questions.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-pink-100 px-4">
-        <div className="max-w-xl w-full bg-white p-6 rounded-2xl shadow-lg">
-          <p>Aucune question disponible.</p>
-        </div>
+      <div className="min-h-screen bg-[#E9C4DE] flex items-center justify-center">
+        <div className="text-white text-lg">Aucune question disponible.</div>
       </div>
     );
   }
@@ -113,79 +148,138 @@ export default function QuizPage() {
     const total = questions.length;
     const { title, msg } = getResultMessage(score, total);
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-pink-200 px-4">
-        <div className="max-w-xl w-full bg-pink-200 p-6 rounded-2xl shadow-lg flex flex-col items-center">
+      <div className="min-h-screen bg-[#E9C4DE] flex flex-col">
+        {/* Header avec bouton fermer */}
+        <div className="flex justify-end p-4">
           <button
-            className="ml-auto mb-4 rounded-full border border-gray-300 p-2 bg-white hover:bg-gray-100 transition"
+            className="w-10 h-10 md:w-16 md:h-16 rounded-full bg-white flex items-center justify-center text-gray-800 hover:bg-gray-100 transition text-xl md:text-3xl"
             onClick={() => router.back()}
             aria-label="Fermer"
           >
-            <span className="text-xl">×</span>
+            ×
           </button>
-          <div className="text-center mt-2">
-            <div className="text-3xl font-bold mb-2">{score}/{total}</div>
-            <div className="text-lg font-semibold mb-2">{title}</div>
-            <div className="text-base text-white mb-8 whitespace-pre-line">{msg}</div>
-            <button
-              className="w-full bg-white text-gray-800 font-semibold py-2 rounded-xl shadow mb-4 hover:bg-gray-50 transition"
-              onClick={handleRestart}
-            >
-              Refaire le test
-            </button>
-            <button
-              className="w-full bg-white text-gray-800 font-semibold py-2 rounded-xl shadow hover:bg-gray-50 transition"
-              onClick={() => router.back()}
-            >
-              Revenir à l'article
-            </button>
+        </div>
+
+        {/* Contenu centré */}
+        <div className="flex-1 flex items-center justify-center px-6">
+          <div className="text-center text-white max-w-sm">
+            <div className="text-5xl md:text-7xl font-bold mb-4">{score}/{total}</div>
+            <div className="text-xl md:text-3xl font-medium mb-6">{title}</div>
+            <div className="text-base md:text-xl leading-relaxed mb-12">
+              {msg}
+            </div>
           </div>
+        </div>
+
+        {/* Boutons en bas */}
+        <div className="px-6 pb-8 space-y-4">
+          <button
+            className="w-full bg-white text-gray-800 font-medium py-4 md:py-6 mb-8 rounded-xl hover:bg-gray-100 transition text-base md:text-lg"
+            onClick={handleRestart}
+          >
+            Refaire le test
+          </button>
+          <button
+            className="w-full bg-white text-gray-800 font-medium py-4 md:py-6 rounded-xl hover:bg-gray-100 transition text-base md:text-lg"
+            onClick={() => router.back()}
+          >
+            Revenir à l'article
+          </button>
         </div>
       </div>
     );
   }
 
   const question = questions[currentIndex];
-  const total = questions.length;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-pink-100 px-4">
-      <div className="max-w-xl w-full bg-white p-6 rounded-2xl shadow-lg">
-        {/* Compteur de questions */}
-        <div className="flex justify-center mb-4">
-          <div className="flex gap-2">
-            {questions.map((_, idx) => (
-              <div
-                key={idx}
-                className={`h-2 w-8 rounded-full transition-all duration-300 ${
-                  idx <= currentIndex ? "bg-pink-400" : "bg-pink-200"
-                }`}
-              ></div>
-            ))}
-          </div>
+    <div className="min-h-screen bg-[#E9C4DE] flex flex-col">
+      {/* Header fixe avec bouton fermer et titre */}
+      <div className="flex items-center justify-between p-4 bg-[#E9C4DE]">
+        <div className="w-8"></div> {/* Spacer pour centrer le titre */}
+        <h2 className="text-black font-medium text-m md:text-2xl">Quiz</h2>
+        <button
+          className="w-8 h-8 md:w-12 md:h-12 rounded-full text-black bg-white bg-opacity-20 flex items-center justify-center hover:bg-opacity-30 transition text-xl md:text-2xl"
+          onClick={() => router.back()}
+          aria-label="Fermer"
+        >
+          ×
+        </button>
+      </div>
+
+      {/* Barre de progression */}
+      <div className="px-4 pb-6">
+        <div className="flex gap-1">
+          {questions.map((_, idx) => (
+            <div
+              key={idx}
+              className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+                idx <= currentIndex ? "bg-[#C376AC]" : "bg-white bg-opacity-30"
+              }`}
+            />
+          ))}
         </div>
-        {/* Image à importer ici selon la question */}
-        <div className="flex justify-center mb-6">
-          {/* <img src={...} alt="illustration" className="h-32" /> */}
+      </div>
+
+      {/* Zone principale - occupe tout l'espace restant */}
+      <div className="flex-1 flex flex-col">
+        {/* Zone de contenu avec question et image */}
+        <div className="flex-1 px-6 pb-8 flex flex-col justify-center relative">
+          {/* Question centrée */}
+          <h1 className="text-2xl md:text-4xl text-white font-medium text-center leading-tight mb-10 z-10 relative">
+            {question.question_text}
+          </h1>
+          
+          {/* Image positionnée en bas à droite */}
+          {question.image_url && (
+            <div className="absolute bottom-0 right-0 z-0">
+              {question.image_url.startsWith('http') ? (
+                <img
+                  src={question.image_url}
+                  alt="illustration"
+                  className="h-40 w-auto md:h-60 object-contain"
+                />
+              ) : imageMap[question.image_url] ? (
+                <img
+                  src={imageMap[question.image_url].src}
+                  alt="illustration"
+                  className="h-40 w-auto md:h-60 object-contain"
+                />
+              ) : null}
+            </div>
+          )}
         </div>
-        <h1 className="text-xl font-semibold text-center mb-6">
-          {question.question_text}
-        </h1>
-        <div className="grid grid-cols-1 gap-4">
+
+        {/* Zone des réponses - toujours en bas */}
+        <div className="bg-white px-4 py-6 md:py-12 grid grid-cols-2 gap-3 md:gap-8 shadow-lg">
           {question.answers.map((answer) => {
             const isSelected = selectedAnswer === answer.id;
             const isCorrect = answer.is_correct;
             let bgColor = "bg-white";
+            let borderColor = "border-gray-200";
+            
             if (showCorrection) {
-              if (isSelected && isCorrect) bgColor = "bg-green-200";
-              else if (isSelected && !isCorrect) bgColor = "bg-red-200";
-              else if (!isSelected && isCorrect) bgColor = "bg-green-100";
+              if (isSelected && isCorrect) {
+                bgColor = "bg-[#A5C580]";
+                borderColor = "border-[#A5C580]";
+              } else if (isSelected && !isCorrect) {
+                bgColor = "bg-[#E44F4F]";
+                borderColor = "border-[#E44F4F]";
+              } else if (!isSelected && isCorrect) {
+                bgColor = "bg-green-50";
+                borderColor = "border-green-200";
+              }
             }
+            
             return (
               <button
                 key={answer.id}
-                className={`p-4 rounded-xl border transition-colors ${bgColor} ${
-                  !selectedAnswer ? "hover:bg-gray-100" : ""
-                }`}
+                className={`
+                  p-4 md:py-6 rounded-xl text-sm md:text-lg text-gray-800 shadow-xl border-none transition-all duration-200
+                  ${bgColor} ${borderColor}
+                  ${!selectedAnswer ? "hover:bg-gray-50 hover:border-gray-300 active:scale-95" : ""}
+                  font-medium leading-tight
+                `}
                 onClick={() => handleAnswerClick(answer.id)}
                 disabled={!!selectedAnswer}
               >
