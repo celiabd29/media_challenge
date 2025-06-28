@@ -95,7 +95,7 @@ export default function PublierArticle() {
             placeholder="Écrivez-ici"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full mt-1 p-3 border rounded-lg"
+            className="w-full mt-1 p-3 border rounded-lg text-gray-600"
             required
           />
         </div>
@@ -108,7 +108,7 @@ export default function PublierArticle() {
             placeholder="Écrivez-ici"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full mt-1 p-3 border rounded-lg"
+            className="w-full mt-1 p-3 border rounded-lg text-gray-600"
           />
         </div>
 
@@ -119,29 +119,32 @@ export default function PublierArticle() {
             placeholder="Écrivez-ici"
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="w-full mt-1 p-3 border rounded-lg h-32"
+            className="w-full mt-1 p-3 border rounded-lg h-32 text-gray-600"
             required
           />
         </div>
 
         {/* Image */}
         <div>
-          <label className="text-sm text-gray-600">Image de couverture</label>
-          <div className="border border-dashed border-gray-400 rounded-lg mt-2 p-4 text-center cursor-pointer">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setImage(e.target.files?.[0] || null)}
-              className="w-full"
-            />
-            <p className="text-sm mt-2 text-gray-500">
-              Cliquez ici pour sélectionner le fichier
-            </p>
-            <p className="text-xs text-gray-400">
-              Formats : PDF, JPG, PNG ou GIF – 3 Mo max.
-            </p>
-          </div>
-        </div>
+  <label className="text-sm text-gray-600">Image de couverture</label>
+  <div className="border border-dashed border-gray-400 rounded-lg mt-2 p-4 text-center cursor-pointer">
+    <label className="cursor-pointer">
+      <div className="text-sm text-blue-600 hover:underline">
+        Cliquez ici pour sélectionner le fichier
+      </div>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => setImage(e.target.files?.[0] || null)}
+        className="hidden"
+      />
+    </label>
+    <p className="text-xs text-gray-400 mt-1">
+      Formats : PDF, JPG, PNG ou GIF – 3 Mo max.
+    </p>
+  </div>
+</div>
+
 
         {/* Catégorie */}
         <div>
@@ -149,7 +152,7 @@ export default function PublierArticle() {
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="w-full mt-1 p-3 border rounded-lg"
+            className="w-full mt-1 p-3 border rounded-lg text-gray-600"
             required
           >
             <option value="">Sélectionner une catégorie</option>

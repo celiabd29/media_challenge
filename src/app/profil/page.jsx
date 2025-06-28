@@ -2,12 +2,14 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/supabase/supabaseClient";
 import { useRouter } from "next/navigation";
+import Navbar from "@/components/BottomNavbar";
 import { EyeIcon, EyeOffIcon, LogOut, Edit3 } from "lucide-react";
 
 export default function ProfilPage() {
   const [user, setUser] = useState(null);
   const [nom, setNom] = useState("");
   const [email, setEmail] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
   const [password, setPassword] = useState("••••••••");
   const [showPassword, setShowPassword] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -21,7 +23,7 @@ export default function ProfilPage() {
 
       const { data } = await supabase
         .from("users")
-        .select("nom, email")
+        .select("nom, email, avatar_url")
         .eq("id", id)
         .maybeSingle();
 
@@ -29,6 +31,7 @@ export default function ProfilPage() {
         setUser(session.user);
         setNom(data.nom);
         setEmail(data.email);
+        setAvatarUrl(data.avatar_url);
       }
     };
 
@@ -40,6 +43,37 @@ export default function ProfilPage() {
     router.push("/login");
   };
 
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !user) return;
+
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${user.id}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    const result = await supabase.storage
+      .from("avatars")
+      .upload(filePath, file, { upsert: true });
+
+    console.log("📤 Upload response :", result);
+    if (result.error) {
+      console.error("❌ Erreur complète :", result.error);
+      return;
+    }
+
+    const { data: { publicUrl } } = supabase
+      .storage
+      .from("avatars")
+      .getPublicUrl(filePath);
+
+    setAvatarUrl(publicUrl);
+
+    await supabase
+      .from("users")
+      .update({ avatar_url: publicUrl })
+      .eq("id", user.id);
+  };
+
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Bandeau haut + avatar */}
@@ -47,25 +81,25 @@ export default function ProfilPage() {
         <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
           <div className="relative">
             <img
-              src="/avatar-placeholder.png"
+              src={avatarUrl || "/avatar-placeholder.png"}
               alt="Avatar"
               className="w-24 h-24 rounded-full border-4 border-white object-cover"
             />
-            <div className="absolute bottom-0 right-0 bg-white rounded-full p-1 border">
+            <label className="absolute bottom-0 right-0 bg-white rounded-full p-1 border cursor-pointer">
               <Edit3 size={16} className="text-gray-700" />
-            </div>
+              <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+            </label>
           </div>
         </div>
       </div>
 
       <div className="mt-20 flex flex-col items-center px-6 w-full max-w-sm self-center">
-        {/* Nom en gros */}
         <h2 className="text-xl font-semibold text-gray-900">{nom}</h2>
 
-        <p className="text-sm text-gray-600 mt-2 mb-6">Coordonnées et identifiants</p>
+        <p className="text-md self-start font-medium text-gray-900 mt-4 mb-3">Coordonnées et identifiants</p>
 
         <div className="w-full mb-4">
-          <label className="text-sm text-gray-700 font-medium">Prénom et Nom</label>
+          <label className="text-sm text-gray-700 font-medium">Prénom et nom</label>
           <input
             type="text"
             value={nom}
@@ -109,7 +143,6 @@ export default function ProfilPage() {
         </button>
       </div>
 
-      {/* Modal de confirmation */}
       {showLogoutConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
           <div className="bg-white rounded-xl p-6 w-80 shadow-lg flex flex-col items-center gap-4">
@@ -134,6 +167,7 @@ export default function ProfilPage() {
           </div>
         </div>
       )}
+      <Navbar />
     </div>
   );
 }

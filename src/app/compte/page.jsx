@@ -5,14 +5,7 @@ import React from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import BottomNavbar from '../../components/BottomNavbar'
-// import {
-//   ArrowLeft,
-//   Share2,
-//   User,
-//   Settings,
-//   Diamond,
-//   ArrowRight
-// } from 'lucide-react'
+
 
 export default function ComptePage() {
   const router = useRouter()

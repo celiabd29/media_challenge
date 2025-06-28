@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../supabase/supabaseClient";
+import { Edit3 } from "lucide-react";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -9,8 +10,8 @@ export default function Dashboard() {
   const [articles, setArticles] = useState([]);
   const [videos, setVideos] = useState([]);
   const [podcasts, setPodcasts] = useState([]);
+  const [toastMessage, setToastMessage] = useState("");
 
-  // Récupérer les contenus créés par l'utilisateur
   useEffect(() => {
     const fetchContent = async () => {
       const {
@@ -18,18 +19,9 @@ export default function Dashboard() {
       } = await supabase.auth.getSession();
       const userId = session?.user?.id;
 
-      const { data: a } = await supabase
-        .from("articles")
-        .select("*")
-      
-      const { data: v } = await supabase
-        .from("videos")
-        .select("*")
-      
-      const { data: p } = await supabase
-        .from("podcasts")
-        .select("*")
-        
+      const { data: a } = await supabase.from("articles").select("*");
+      const { data: v } = await supabase.from("videos").select("*");
+      const { data: p } = await supabase.from("podcasts").select("*");
 
       setArticles(a || []);
       setVideos(v || []);
@@ -39,7 +31,6 @@ export default function Dashboard() {
     fetchContent();
   }, []);
 
-  // Récupérer les infos utilisateur
   useEffect(() => {
     const fetchUser = async () => {
       const {
@@ -55,15 +46,12 @@ export default function Dashboard() {
       const userId = session.user.id;
       const { data, error } = await supabase
         .from("users")
-        .select("nom, email")
+        .select("id, nom, email, avatar_url")
         .eq("id", userId)
         .maybeSingle();
 
       if (error) {
-        console.error(
-          "Erreur lors du chargement de l'utilisateur :",
-          error.message
-        );
+        console.error("Erreur lors du chargement de l'utilisateur :", error.message);
       } else {
         setUser(data);
       }
@@ -71,6 +59,38 @@ export default function Dashboard() {
 
     fetchUser();
   }, [router]);
+
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !user?.id) return;
+
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${user.id}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("avatars")
+      .upload(filePath, file, { upsert: true });
+
+    if (uploadError) {
+      alert("Erreur lors de l’upload 😞");
+      return;
+    }
+
+    const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
+    const publicUrl = data.publicUrl;
+
+    const { error: updateError } = await supabase
+      .from("users")
+      .update({ avatar_url: publicUrl })
+      .eq("id", user.id);
+
+    if (!updateError) {
+      setUser((prev) => ({ ...prev, avatar_url: publicUrl }));
+      setToastMessage("✅ Avatar mis à jour !");
+      setTimeout(() => setToastMessage(""), 3000);
+    }
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -84,24 +104,38 @@ export default function Dashboard() {
       alert("❌ Erreur lors de la suppression");
       console.error(error);
     } else {
-      if (table === "articles")
-        setArticles((prev) => prev.filter((a) => a.id !== id));
-      if (table === "videos")
-        setVideos((prev) => prev.filter((v) => v.id !== id));
-      if (table === "podcasts")
-        setPodcasts((prev) => prev.filter((p) => p.id !== id));
+      if (table === "articles") setArticles((prev) => prev.filter((a) => a.id !== id));
+      if (table === "videos") setVideos((prev) => prev.filter((v) => v.id !== id));
+      if (table === "podcasts") setPodcasts((prev) => prev.filter((p) => p.id !== id));
     }
   };
 
   return (
     <div className="min-h-screen bg-[#F5F7FB] p-4 flex flex-col gap-6">
-      {/* Profil utilisateur */}
+      {toastMessage && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-md z-50">
+          {toastMessage}
+        </div>
+      )}
+
       <div className="bg-white rounded-2xl shadow p-6 flex flex-col items-center">
-        <img
-          src="/avatar-placeholder.png"
-          alt="avatar"
-          className="w-28 h-28 rounded-full object-cover border-4 border-white shadow mb-4"
-        />
+        <div className="relative group">
+          <img
+            src={user?.avatar_url || "/avatar-placeholder.png"}
+            alt="avatar"
+            className="w-28 h-28 rounded-full object-cover border-4 border-white shadow mb-4"
+          />
+          <label htmlFor="avatar-upload" className="absolute bottom-0 right-0 bg-white rounded-full p-1 border cursor-pointer hover:bg-gray-100">
+            <Edit3 size={16} className="text-gray-700" />
+          </label>
+          <input
+            type="file"
+            id="avatar-upload"
+            accept="image/*"
+            onChange={handleAvatarUpload}
+            className="hidden"
+          />
+        </div>
         <h2 className="text-xl font-semibold text-gray-800">
           {user?.nom || "Chargement..."}
         </h2>
