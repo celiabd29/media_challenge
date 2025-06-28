@@ -5,16 +5,15 @@ import { supabase } from "@/supabase/supabaseClient";
 
 export default function CreerVisio() {
   const router = useRouter();
-  const [titre, setTitre] = useState("");
+  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [lien, setLien] = useState("");
+  const [link, setLink] = useState("");
   const [date, setDate] = useState("");
-  const [heure, setHeure] = useState("");
+  const [hour, setHour] = useState("");
   const [image, setImage] = useState(null);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ✅ Génére un lien de visio via API /create-whereby-room
   const generateLink = async () => {
     setLoading(true);
     setMessage("");
@@ -25,7 +24,7 @@ export default function CreerVisio() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Erreur lors de la génération du lien");
-      setLien(data.hostRoomUrl || data.roomUrl || "");
+      setLink(data.hostRoomUrl || data.roomUrl || "");
     } catch (err) {
       setMessage("❌ " + err.message);
     } finally {
@@ -64,18 +63,23 @@ export default function CreerVisio() {
       imageUrl = data.publicUrl;
     }
 
-    const { error } = await supabase.from("visios").insert({
-      titre,
+    const payload = {
+      title,
       description,
-      lien,
+      link,
       date,
-      heure,
+      hour,
       image_url: imageUrl,
       author_id: userId,
-    });
+    };
+
+    console.log("📤 Données envoyées à Supabase :", payload);
+
+    const { error } = await supabase.from("visios").insert(payload);
 
     if (error) {
-      setMessage("❌ Erreur lors de la publication");
+      console.error("❌ Erreur Supabase :", error);
+      setMessage("❌ Erreur lors de la publication : " + error.message);
     } else {
       router.push("/espace-pro");
     }
@@ -95,8 +99,8 @@ export default function CreerVisio() {
             type="text"
             className="w-full border px-3 py-2 rounded mt-1 text-gray-600"
             placeholder="Écrivez-ici"
-            value={titre}
-            onChange={(e) => setTitre(e.target.value)}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
             required
           />
         </div>
@@ -126,8 +130,8 @@ export default function CreerVisio() {
             type="url"
             className="w-full border px-3 py-2 rounded mt-1 text-gray-600"
             placeholder="https://whereby.com/..."
-            value={lien}
-            onChange={(e) => setLien(e.target.value)}
+            value={link}
+            onChange={(e) => setLink(e.target.value)}
             required
           />
         </div>
@@ -146,8 +150,8 @@ export default function CreerVisio() {
           <input
             type="time"
             className="w-full border px-3 py-2 rounded mt-1 text-gray-600"
-            value={heure}
-            onChange={(e) => setHeure(e.target.value)}
+            value={hour}
+            onChange={(e) => setHour(e.target.value)}
             required
           />
         </div>
