@@ -1,82 +1,89 @@
-// "use client";
-
-// import React, { useState } from "react";
-// import Image from "next/image";
-// // import { Search } from 'lucide-react'
-// // import BottomNav from '../components/BottomNav'
-// import SearchBar from "../components/SearchBar";
-// import BottomNavbar from "./BottomNavbar";
-
-// export default function Recherche() {
-  //   const [selectedTab, setSelectedTab] = useState("Tout");
-  //   const [query, setQuery] = useState("");
-  
-  //   return (
-    //     <div className="flex flex-col min-h-screen pb-20 bg-white px-4 py-6">
-    //       {/* En‐tête */}
-    //       <header className="flex items-center justify-between mb-4">
-    //         <h1 className="text-black font-medium text-2xl leading-6">Favoris</h1>
-    //         <button aria-label="Favoris" className="p-2">
-    //           {/* <Bookmark size={24} /> */}
-//         </button>
-//       </header>
-
-//       <SearchBar query={query} setQuery={setQuery} />
-
-//       {/* Tabs de filtre */}
-//       <Navigation selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
-
-//       {/* Espace principal (au besoin flex-1 pour forcer le stretch) */}
-//       <section className="flex-1 overflow-y-auto">
-//         {/* … ici tes catégories ou autres contenus … */}
-//       </section>
-
-//       {/* Bottom nav fixe */}
-//       <div className="fixed bottom-0 left-0 right-0">
-//         {/*
-//          */}
-//       </div>
-//       <BottomNavbar />
-//     </div>
-//   );
-// }
 "use client";
 
-import React, { useState } from "react";
-// Ces imports seront réactivés après vérification
-import Navigation from './Navigation';
-import SearchBar from '../components/SearchBar';
-import BottomNavbar from './BottomNavbar';
+import { useEffect, useState } from "react";
+import { supabase } from "../supabase/supabaseClient";
+import NavigationFavoris from "../components/NavFavoris";
+import Image from "next/image";
+import Link from "next/link";
 
 export default function Favoris() {
   const [selectedTab, setSelectedTab] = useState("Tout");
   const [query, setQuery] = useState("");
+  const [videoFavoris, setVideoFavoris] = useState([]);
+
+  useEffect(() => {
+    const fetchVideoFavoris = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const userId = session?.user?.id;
+      if (!userId) return;
+
+      const { data, error } = await supabase
+        .from("favoris_videos")
+        .select("*")
+        .eq("user_id", userId);
+
+      if (error) {
+        console.error("Erreur récupération vidéos :", error);
+      } else {
+        setVideoFavoris(data);
+      }
+    };
+
+    fetchVideoFavoris();
+  }, []);
+
+  const filteredVideos = videoFavoris.filter((video) =>
+    video.title.toLowerCase().includes(query.toLowerCase())
+  );
 
   return (
-    <div className="flex flex-col min-h-screen pb-20 bg-white px-4 py-6">
-      {/* En-tête */}
-      <header className="flex items-center justify-between mb-4">
-        <h1 className="text-black font-medium text-2xl leading-6">Favoris</h1>
-        <button aria-label="Favoris" className="p-2">
-          {/* Bouton d’action à définir */}
-        </button>
-      </header>
+    <main className="min-h-screen p-4 pb-24">
+      <h1 className="text-xl font-semibold mb-4">Mes Favoris</h1>
 
       {/* Barre de recherche */}
-      <SearchBar query={query} setQuery={setQuery} />
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="🔍 Recherche..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="w-full px-4 py-2 rounded-lg border bg-gray-100"
+        />
+      </div>
 
-      {/* Onglets de filtre */}
-      <Navigation selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
+      {/* Navigation */}
+      <NavigationFavoris selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
 
-      {/* Contenu principal */}
-      <section className="flex-1 overflow-y-auto">
-        <p className="text-gray-600 text-center mt-10">
-          Aucun favori pour le moment.
-        </p>
-      </section>
+      {/* Contenu */}
+      {(selectedTab === "Vidéo" || selectedTab === "Tout") && filteredVideos.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          {filteredVideos.map((video) => (
+            <div key={video.id} className="bg-white border rounded-xl shadow-md overflow-hidden">
+              <Link href={`/video/${video.video_id}`}>
+                <div className="cursor-pointer">
+                  <Image
+                    src={video.image_url}
+                    alt={video.title}
+                    width={500}
+                    height={300}
+                    className="w-full h-40 object-cover"
+                  />
+                  <div className="p-4">
+                    <h2 className="text-lg font-semibold">{video.title}</h2>
+                    <p className="text-sm text-gray-600">{video.description}</p>
+                  </div>
+                </div>
+              </Link>
+            </div>
+          ))}
+        </div>
+      )}
 
-      {/* Barre de navigation en bas */}
-      <BottomNavbar />
-    </div>
+      {(selectedTab === "Vidéo" || selectedTab === "Tout") && filteredVideos.length === 0 && (
+        <p className="text-center text-gray-500 mt-10">Aucun favori pour le moment.</p>
+      )}
+    </main>
   );
 }
