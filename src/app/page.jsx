@@ -1,9 +1,10 @@
+
 'use client';
-// pages/index.jsx
+
 import Image from "next/image";
 import BottomNavbar from "../components/BottomNavbar";
 import Link from "next/link";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "../supabase/supabaseClient";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -22,175 +23,10 @@ const categories = [
   { key: 'identite',     label: 'Identité',     image: identiteImg,     bgColor: 'bg-[#DDC8FF]', href: '/identite' },
 ];
 
-// Composant lecteur vidéo compact pour la page d'accueil
-function VideoPreview() {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [showControls, setShowControls] = useState(true);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const videoRef = useRef(null);
-  const containerRef = useRef(null);
-  const hideControlsTimeoutRef = useRef(null);
-
-  // Gérer l'état plein écran
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => {
-      document.removeEventListener('fullscreenchange', handleFullscreenChange);
-    };
-  }, []);
-
-  const togglePlay = () => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
-    }
-  };
-
-  const handleVideoClick = () => {
-    togglePlay();
-  };
-
-  const handleMouseEnter = () => {
-    setShowControls(true);
-    if (hideControlsTimeoutRef.current) {
-      clearTimeout(hideControlsTimeoutRef.current);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (isPlaying) {
-      hideControlsTimeoutRef.current = setTimeout(() => {
-        setShowControls(false);
-      }, 1000);
-    }
-  };
-
-  const handlePlay = () => {
-    setIsPlaying(true);
-    hideControlsTimeoutRef.current = setTimeout(() => {
-      setShowControls(false);
-    }, 2000);
-  };
-
-  const handlePause = () => {
-    setIsPlaying(false);
-    setShowControls(true);
-    if (hideControlsTimeoutRef.current) {
-      clearTimeout(hideControlsTimeoutRef.current);
-    }
-  };
-
-  // Plein écran
-  const handleFullscreen = () => {
-    if (containerRef.current) {
-      if (document.fullscreenElement) {
-        document.exitFullscreen();
-      } else {
-        containerRef.current.requestFullscreen();
-      }
-    }
-  };
-
-  return (
-    <div
-      ref={containerRef}
-      className={`relative w-full h-[180px] md:h-[320px] lg:h-[400px] rounded-2xl overflow-hidden bg-black shadow-md ${
-        isFullscreen ? 'fixed inset-0 z-[1000] flex items-center justify-center bg-black' : ''
-      }`}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      <video
-        ref={videoRef}
-        src="/video/fleur.mp4"
-        poster="/images/ecoute2.png"
-        className={`${isFullscreen
-          ? 'w-screen h-screen object-contain bg-black'
-          : 'w-full h-[180px] md:h-[320px] lg:h-[400px] object-cover'
-        } cursor-pointer`}
-        onClick={handleVideoClick}
-        onPlay={handlePlay}
-        onPause={handlePause}
-        preload="metadata"
-      >
-        Votre navigateur ne supporte pas la lecture de vidéos.
-      </video>
-      {/* Overlay avec contrôles */}
-      <div
-        className={`absolute inset-0 transition-opacity duration-500 ${
-          showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        } ${isFullscreen ? 'flex items-center justify-center' : ''}`}
-        style={isFullscreen ? { zIndex: 1001 } : {}}
-      >
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/20" />
-        {/* Bouton play/pause central */}
-        <div className={`absolute inset-0 flex items-center justify-center`}>
-          <button
-            onClick={togglePlay}
-            className="w-16 h-16 bg-pink-200/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-2xl hover:bg-pink-200/90 transition-all duration-300 hover:scale-110"
-          >
-            {isPlaying ? (
-              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
-              </svg>
-            ) : (
-              <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            )}
-          </button>
-        </div>
-        {/* Bouton plein écran en bas à droite (ou en haut à droite en plein écran) */}
-        <button
-          onClick={handleFullscreen}
-          className={`absolute ${isFullscreen ? 'top-4 right-4' : 'bottom-4 right-4'} bg-white/80 hover:bg-white text-black rounded-full p-2 shadow`}
-          title="Plein écran"
-          style={isFullscreen ? { zIndex: 1002 } : {}}
-        >
-          <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-            <path d="M8 3H5a2 2 0 0 0-2 2v3" />
-            <path d="M16 3h3a2 2 0 0 1 2 2v3" />
-            <path d="M8 21H5a2 2 0 0 1-2-2v-3" />
-            <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
-          </svg>
-        </button>
-      </div>
-      {/* Badge Nouveauté, visible seulement si la vidéo n'est pas en lecture */}
-      {!isPlaying && (
-        <span className="absolute top-4 left-4 bg-[#EAB1D9] text-white text-xs font-medium px-3 py-1 rounded-full z-10">
-          Nouveauté
-        </span>
-      )}
-    </div>
-  );
-}
-
 export default function Home() {
   const { user, loading } = useAuth();
   const [userName, setUserName] = useState("");
   const [articles, setArticles] = useState([]);
-
-  // Fonction de partage via Web Share API
-  const handleShare = (article) => {
-    if (!navigator.share) {
-      alert("Le partage n'est pas supporté sur ce navigateur.");
-      return;
-    }
-    navigator.share({
-      title: article.title,
-      text: 'Découvrez ce contenu !',
-      url: window.location.href + `/article?id=${article.id}`,
-    })
-    .catch((error) => console.error('Erreur de partage :', error));
-  };
 
   useEffect(() => {
     const fetchUserName = async () => {
@@ -218,27 +54,45 @@ export default function Home() {
     fetchArticles();
   }, []);
 
+  const handleShare = (article) => {
+    if (!navigator.share) {
+      alert("Le partage n'est pas supporté sur ce navigateur.");
+      return;
+    }
+    navigator.share({
+      title: article.title,
+      text: 'Découvrez ce contenu !',
+      url: window.location.href + `/article?id=${article.id}`,
+    }).catch((error) => console.error('Erreur de partage :', error));
+  };
+
   return (
     <main className="min-h-screen bg-white px-2 md:px-8 lg:px-16 pb-20 w-full">
-      {/* HEADER */}
       <header className="pt-8 flex items-center justify-between">
         <p className="text-lg md:text-2xl text-gray-700">
           Bonjour 👋 <br /> <span className="font-semibold">{userName || " "}</span>
         </p>
       </header>
 
-      {/* CARTE "Nouveauté" remplacée par la vidéo */}
       <section className="mt-6">
-        <h1 className="text-xl md:text-3xl font-semibold mb-2">Notre dernier reportage</h1>
-        <div className="relative">
-          <VideoPreview />
-          <span className="absolute top-4 left-4 bg-[#EAB1D9] text-white text-xs md:text-base font-medium px-3 py-1 rounded-full z-10">
-            Nouveauté
-          </span>
+        <h1 className="text-xl md:text-3xl font-semibold mb-4">Notre dernier reportage</h1>
+        <div className="w-full flex justify-start">
+          <div className="w-[400px] md:w-[800px] lg:w-[480px] h-[200px] md:h-[230px] lg:h-[270px] rounded-2xl overflow-hidden shadow-lg relative">
+            <iframe
+              className="w-full h-full"
+              src="https://www.youtube.com/embed/7cFH6wYsy54?si=tO45Y0YD_rksYith"
+              title="YouTube video player"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+            ></iframe>
+            <span className="absolute top-3 left-3 bg-[#EAB1D9] text-white text-xs font-medium px-3 py-1 rounded-full z-10">
+              Nouveauté
+            </span>
+          </div>
         </div>
       </section>
 
-      {/* CATÉGORIES */}
       <section className="mt-8 md:mt-12 w-full">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl md:text-2xl font-semibold text-gray-800">Catégories</h2>
@@ -248,11 +102,7 @@ export default function Home() {
         </div>
         <div className="flex gap-x-3 md:gap-x-6 overflow-x-scroll hide-scrollbar">
           {categories.map(cat => (
-            <Link
-              key={cat.key}
-              href={cat.href}
-              className="flex-shrink-0 flex flex-col items-center"
-            >
+            <Link key={cat.key} href={cat.href} className="flex-shrink-0 flex flex-col items-center">
               <div className={`${cat.bgColor} w-[90px] h-[88px] md:w-[140px] md:h-[130px] rounded-lg flex items-center justify-center shadow-sm mb-2`}>
                 <Image src={cat.image} width={140} height={130} alt={cat.label} />
               </div>
@@ -262,7 +112,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA PROFESSIONNEL */}
       <section className="mt-4 md:mt-8 mb-8 w-full">
         <div className="relative h-[180px] md:h-[240px] bg-[#4069E1] rounded-[20px] pl-6 pr-8 md:p-10 flex items-center overflow-hidden">
           <div className="flex-1 text-white z-10 pr-8 md:pr-20">
@@ -291,7 +140,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* LES PLUS POPULAIRES */}
       <section className="mt-8 md:mt-12 mb-8 w-full">
         <h2 className="text-xl md:text-2xl font-semibold text-black mb-6">Les plus populaires</h2>
         <div className="flex flex-col gap-4 md:gap-8">
@@ -302,7 +150,6 @@ export default function Home() {
                 href={`/article?id=${article.id}`}
                 className="flex bg-white rounded-[16px] shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition md:text-lg md:p-6"
               >
-                {/* Image container */}
                 <div className="relative pl-3 pt-2 flex-shrink-0 w-[100px] h-[130px] md:w-[180px] md:h-[220px] md:pr-4">
                   {article.image_url ? (
                     <img
@@ -315,15 +162,12 @@ export default function Home() {
                       <span className="text-gray-400 text-xs">No image</span>
                     </div>
                   )}
-                  {/* Badge catégorie */}
                   <span className="absolute top-3 left-4 bg-yellow-100 text-gray-800 text-[10px] md:text-xs font-medium px-2 py-0.5 md:mt-4 md:ml-3 rounded">
                     {article.category}
                   </span>
                 </div>
 
-                {/* Content container */}
                 <div className="flex-1 p-2 pb-4 flex flex-col justify-between relative">
-                  {/* Actions buttons */}
                   <div className="absolute top-3 right-1 flex flex-col gap-2">
                     <button className="bg-gray-50 rounded-full p-2 w-9 h-9 flex items-center justify-center hover:bg-gray-100 shadow-md">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -355,19 +199,17 @@ export default function Home() {
                     </p>
                   </div>
 
-                  {/* Meta information */}
                   <div className="flex items-center gap-4 text-[11px] md:text-sm text-gray-500">
                     <span className="flex items-center gap-1">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <circle cx="12" cy="12" r="10"/>
-
                         <polyline points="12,6 12,12 16,14"/>
                       </svg>
                       5min
                     </span>
                     <span className="flex items-center gap-1">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4aэ/2 2 0 0 0-2-2z"/>
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/>
                         <polyline points="16,6 12,2 8,6"/>
                         <line x1="12" y1="2" x2="12" y2="15"/>
                       </svg>
@@ -391,7 +233,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* NAVBAR FIXE EN BAS */}
       <div className="fixed bottom-0 left-0 w-full z-50">
         <BottomNavbar />
       </div>
