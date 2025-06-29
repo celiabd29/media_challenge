@@ -104,36 +104,28 @@ export default function ArticlePage({ id }) {
   }
 
   return (
-    <div className="w-screen min-h-screen bg-white text-gray-800 px-4 pb-32">
-      <div className="p-4">
-        <button
-          onClick={() => router.back()}
-          className="p-2 bg-white rounded-full shadow-xl"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-5 h-5 text-gray-800"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-      </div>
+    <div className="w-screen min-h-screen bg-white text-gray-800 pb-32">
+
 
       {article.image_url && (
-        <div className="w-full h-[240px] relative mb-6">
+        <div className="w-full h-[200px] md:h-[400px] lg:h-[500px] relative mb-6">
           <Image
             src={article.image_url}
             alt="Article"
             fill
-            className="object-cover w-full h-full rounded-b-xl"
+            className="w-full h-[200px] md:h-[400px] lg:h-[500px] object-cover rounded-b-xl"
           />
         </div>
       )}
-
+      <div className="absolute top-4 left-8 right-8 flex items-center justify-between z-10">
+            <button onClick={() => router.back()} className="p-2 bg-white rounded-full shadow-xl">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <BookmarkButton contentId={article.id} type="video" />
+          </div>
+<div className="px-4">
       <h1 className="text-2xl font-bold mb-2">{article.title}</h1>
 
       <p className="text-sm text-gray-500 mb-4">{likeCount} ❤️</p>
@@ -177,6 +169,7 @@ export default function ArticlePage({ id }) {
             </span>
           </div>
         </Link>
+      </div>
       </div>
 
       <div className="fixed bottom-0 left-0 w-full bg-blue-500 rounded-t-2xl px-8 py-4 flex justify-around items-center z-50 text-white">
