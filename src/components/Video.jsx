@@ -8,6 +8,7 @@ import { supabase } from "../supabase/supabaseClient";
 import NavShare from "./NavShare";
 import ecouteImg from "../assets/img/ecoute2.png";
 import { Heart } from "lucide-react";
+import BookmarkButton from "./BookmarkButton"; // ✅ import
 
 const VIDEO_SRC = "/video/fleur.mp4";
 const VIDEO_ID = 1; // À adapter dynamiquement si besoin
@@ -17,7 +18,6 @@ export default function Video() {
   const [query, setQuery] = useState("");
   const [isPlaying, setIsPlaying] = useState(false);
   const [showControls, setShowControls] = useState(true);
-  const [isBookmarked, setIsBookmarked] = useState(false);
   const [userId, setUserId] = useState(null);
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
@@ -64,39 +64,6 @@ export default function Video() {
     if (hideControlsTimeoutRef.current) clearTimeout(hideControlsTimeoutRef.current);
   };
 
-  const toggleBookmark = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    const uid = session?.user?.id;
-    if (!uid || !VIDEO_ID) return;
-
-    const { data: existing } = await supabase
-      .from("favoris_videos")
-      .select("*")
-      .eq("user_id", uid)
-      .eq("video_id", VIDEO_ID)
-      .single();
-
-    if (existing) {
-      await supabase
-        .from("favoris_videos")
-        .delete()
-        .eq("user_id", uid)
-        .eq("video_id", VIDEO_ID);
-      setIsBookmarked(false);
-    } else {
-      await supabase.from("favoris_videos").insert([
-        {
-          user_id: uid,
-          video_id: VIDEO_ID,
-          title: "Le plaisir sans tabou",
-          description: "Cette vidéo aborde le plaisir avec simplicité et bienveillance...",
-          image_url: "/images/ecoute2.png",
-        },
-      ]);
-      setIsBookmarked(true);
-    }
-  };
-
   const toggleLike = async () => {
     if (!userId) return;
 
@@ -135,22 +102,14 @@ export default function Video() {
 
       if (!uid || !VIDEO_ID) return;
 
-      const { data: bookmark } = await supabase
-        .from("favoris_videos")
-        .select("*")
-        .eq("user_id", uid)
-        .eq("video_id", VIDEO_ID)
-        .single();
-      setIsBookmarked(!!bookmark);
-
       const { data: like } = await supabase
         .from("likes")
         .select("*")
         .eq("user_id", uid)
         .eq("content_id", VIDEO_ID)
         .eq("content_type", "video");
-      setLiked(like.length > 0);
 
+      setLiked(Array.isArray(like) && like.length > 0);
       fetchLikeCount();
     };
 
@@ -212,24 +171,14 @@ export default function Video() {
               </button>
 
               {/* Bookmark button */}
-              <button
-                onClick={toggleBookmark}
-                className="p-3 bg-white rounded-full shadow-xl hover:bg-white/30 transition-all duration-200"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill={isBookmarked ? "currentColor" : "none"}
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
-                  />
-                </svg>
-              </button>
+              <BookmarkButton
+                contentId={VIDEO_ID}
+                contentType="video"
+                title="Le plaisir sans tabou"
+                description="Cette vidéo aborde le plaisir avec simplicité et bienveillance..."
+                image_url="/images/ecoute2.png"
+                duration="5min"
+              />
             </div>
           </div>
 

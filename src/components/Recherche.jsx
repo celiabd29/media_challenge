@@ -20,7 +20,7 @@ import protectionImg   from '../assets/img/protection.png'
 
 const categories = [
     { key: 'ecoute',       label: 'Écoute',       image: ecouteImg,       bgColor: 'bg-[#E9C4DE]', href: '/ecoute' },
-    { key: 'emotions',     label: 'Émotions',     image: emotionImg,     bgColor: 'bg-[#E0EED0]', href: '/communication' },
+    { key: 'emotions',     label: 'Émotions',     image: emotionImg,     bgColor: 'bg-[#E0EED0]', href: '/emotion' },
     { key: 'consentement', label: 'Consentement', image: consentementImg, bgColor: 'bg-[#FFCFA6]', href: '/consentement' },
     { key: 'puberte',      label: 'Puberté',      image: puberteImg,      bgColor: 'bg-[#B3D1ED]', href: '/puberte' },
     { key: 'identite',     label: 'Identité',     image: identiteImg,     bgColor: 'bg-[#DDC8FF]', href: '/identite' },

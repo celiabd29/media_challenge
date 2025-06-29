@@ -1,89 +1,138 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "../supabase/supabaseClient";
-import NavigationFavoris from "../components/NavFavoris";
-import Image from "next/image";
-import Link from "next/link";
+import CardFavori from "../components/CardFavori";
+import BottomNavbar from "./BottomNavbar";
 
 export default function Favoris() {
   const [selectedTab, setSelectedTab] = useState("Tout");
   const [query, setQuery] = useState("");
+  const [articleFavoris, setArticleFavoris] = useState([]);
   const [videoFavoris, setVideoFavoris] = useState([]);
+  const [podcastFavoris, setPodcastFavoris] = useState([]);
 
   useEffect(() => {
-    const fetchVideoFavoris = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      const userId = session?.user?.id;
-      if (!userId) return;
+    const fetchFavoris = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      const uid = session?.user?.id;
+      if (!uid) return;
 
-      const { data, error } = await supabase
+      const { data: a } = await supabase
+        .from("favoris_articles")
+        .select("*, articles(*)")
+        .eq("user_id", uid);
+
+      const { data: v } = await supabase
         .from("favoris_videos")
-        .select("*")
-        .eq("user_id", userId);
+        .select("*, videos(*)")
+        .eq("user_id", uid);
 
-      if (error) {
-        console.error("Erreur récupération vidéos :", error);
-      } else {
-        setVideoFavoris(data);
-      }
+      const { data: p } = await supabase
+        .from("favoris_podcasts")
+        .select("*, podcasts(*)")
+        .eq("user_id", uid);
+
+      setArticleFavoris(a ?? []);
+      setVideoFavoris(v ?? []);
+      setPodcastFavoris(p ?? []);
     };
 
-    fetchVideoFavoris();
+    fetchFavoris();
   }, []);
 
-  const filteredVideos = videoFavoris.filter((video) =>
-    video.title.toLowerCase().includes(query.toLowerCase())
-  );
+  const renderCards = () => {
+    const cards = [];
+
+    if (selectedTab === "Tout" || selectedTab === "Article") {
+      cards.push(...articleFavoris.map((f) => (
+        <CardFavori
+          key={f.id}
+          type="Article"
+          title={f.articles.title}
+          description={f.articles.description}
+          image={f.articles.image_url}
+          duration={f.articles.duration}
+          likes={f.articles.likes}
+          href={`/article/${f.article_id}`}
+        />
+      )));
+    }
+
+    if (selectedTab === "Tout" || selectedTab === "Vidéo") {
+      cards.push(...videoFavoris.map((f) => (
+        <CardFavori
+          key={f.id}
+          type="Vidéo"
+          title={f.videos.title}
+          description={f.videos.description}
+          image={f.videos.image_url}
+          duration={f.videos.duration}
+          likes={f.videos.likes}
+          href={`/video/${f.video_id}`}
+        />
+      )));
+    }
+
+    if (selectedTab === "Tout" || selectedTab === "Podcast") {
+      cards.push(...podcastFavoris.map((f) => (
+        <CardFavori
+          key={f.id}
+          type="Podcast"
+          title={f.podcasts.title}
+          description={f.podcasts.description}
+          image={f.podcasts.image_url}
+          duration={f.podcasts.duration}
+          likes={f.podcasts.likes}
+          href={`/podcast/${f.podcast_id}`}
+        />
+      )));
+    }
+
+    return cards;
+  };
 
   return (
-    <main className="min-h-screen p-4 pb-24">
-      <h1 className="text-xl font-semibold mb-4">Mes Favoris</h1>
+    <div className="flex flex-col min-h-screen pb-20 bg-white px-4 py-6">
+      {/* En-tête */}
+      <header className="flex items-center justify-between mb-4">
+        <h1 className="text-black font-medium text-2xl md:text-3xl leading-6">Mes Favoris</h1>
+      </header>
 
       {/* Barre de recherche */}
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="🔍 Recherche..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="w-full px-4 py-2 rounded-lg border bg-gray-100"
-        />
+      <input
+        type="text"
+        placeholder="🔍 Recherche"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        className="w-full px-4 py-2 mb-4 rounded-xl border text-sm placeholder-gray-400"
+      />
+
+      {/* Onglets type */}
+      <div className="flex gap-2 mb-6">
+        {["Tout", "Article", "Vidéo", "Podcast"].map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setSelectedTab(tab)}
+            className={`px-4 py-2 rounded-xl text-sm font-medium border transition ${
+              selectedTab === tab
+                ? "bg-blue-600 text-white"
+                : "bg-white text-blue-600 border-blue-600"
+            }`}
+          >
+            {tab}
+          </button>
+        ))}
       </div>
 
-      {/* Navigation */}
-      <NavigationFavoris selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
+      {/* Cartes de favoris */}
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {renderCards().filter((card) =>
+          card.props.title.toLowerCase().includes(query.toLowerCase())
+        )}
+      </section>
 
-      {/* Contenu */}
-      {(selectedTab === "Vidéo" || selectedTab === "Tout") && filteredVideos.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-          {filteredVideos.map((video) => (
-            <div key={video.id} className="bg-white border rounded-xl shadow-md overflow-hidden">
-              <Link href={`/video/${video.video_id}`}>
-                <div className="cursor-pointer">
-                  <Image
-                    src={video.image_url}
-                    alt={video.title}
-                    width={500}
-                    height={300}
-                    className="w-full h-40 object-cover"
-                  />
-                  <div className="p-4">
-                    <h2 className="text-lg font-semibold">{video.title}</h2>
-                    <p className="text-sm text-gray-600">{video.description}</p>
-                  </div>
-                </div>
-              </Link>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {(selectedTab === "Vidéo" || selectedTab === "Tout") && filteredVideos.length === 0 && (
-        <p className="text-center text-gray-500 mt-10">Aucun favori pour le moment.</p>
-      )}
-    </main>
+      <BottomNavbar />
+    </div>
   );
 }
