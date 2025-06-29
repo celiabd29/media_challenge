@@ -1,21 +1,20 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { supabase } from "../supabase/supabaseClient";
+
+import { useRouter } from 'next/navigation';
 import Link from "next/link";
 import Image from "next/image";
 import { Heart } from "lucide-react";
 import ecouteImg from "../assets/img/ecoute2.png";
 
-export default function ArticlePage() {
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id") ?? null;
-
+export default function ArticlePage({ id }) {
   const [article, setArticle] = useState(null);
   const [userId, setUserId] = useState(null);
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,7 +40,7 @@ export default function ArticlePage() {
       const uid = userData.user.id;
       setUserId(uid);
 
-      // Vérifie like
+      // Vérifie si déjà liké
       const { data: likeData, error: likeCheckError } = await supabase
         .from("likes")
         .select("*")
@@ -51,7 +50,7 @@ export default function ArticlePage() {
 
       if (!likeCheckError) setLiked(likeData?.length > 0);
 
-      // Compte les likes (via la vue)
+      // Récupère le nombre de likes
       const { data: countData, error: countError } = await supabase
         .from("article_like_counts")
         .select("like_count")
@@ -66,7 +65,6 @@ export default function ArticlePage() {
     fetchData();
   }, [id]);
 
-  // Toggle like
   const handleToggleLike = async () => {
     if (!userId || !id) return;
 
@@ -78,31 +76,33 @@ export default function ArticlePage() {
         .eq("content_id", id)
         .eq("content_type", "article");
 
-      if (error) return console.error("Suppression like :", error);
+      if (error) {
+        console.error("Suppression like :", error);
+        return;
+      }
     } else {
       const { error } = await supabase
         .from("likes")
         .insert([{ user_id: userId, content_id: id, content_type: "article" }]);
 
-      if (error) return console.error("Ajout like :", error);
+      if (error) {
+        console.error("Ajout like :", error);
+        return;
+      }
     }
 
     setLiked(!liked);
 
-    // Refresh like count
+    // Met à jour le compteur
     const { data: countData, error: countError } = await supabase
-  .from("article_like_counts")
-  .select("like_count")
-  .eq("content_id", String(id)) // 🔁 important
-  .maybeSingle(); // 🔁 plus sûr que single()
+      .from("article_like_counts")
+      .select("like_count")
+      .eq("content_id", String(id))
+      .maybeSingle();
 
-
-console.log("countData:", countData); // Ajoute ça
-
-if (!countError) {
-  setLikeCount(countData?.like_count || 0);
-}
-
+    if (!countError) {
+      setLikeCount(countData?.like_count || 0);
+    }
   };
 
   if (!article) {
@@ -115,13 +115,36 @@ if (!countError) {
 
   return (
     <div className="w-screen min-h-screen bg-white text-gray-800 px-4">
-      {article.image_url && (
-        <img
-          src={article.image_url}
-          alt="Article"
-          className="rounded-b-xl mb-6 w-full object-cover max-h-[260px]"
-        />
-      )}
+      <div className="p-4">
+  <button
+    onClick={() => router.back()}
+    className="p-2 bg-white rounded-full shadow-xl"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-5 h-5 text-gray-800"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+    </svg>
+  </button>
+</div>
+
+{article.image_url && (
+  <div className="w-full h-[240px] relative mb-6">
+    <Image
+      src={article.image_url}
+      alt="Article"
+      fill
+      className="object-cover w-full h-full rounded-b-xl"
+    />
+  </div>
+)}
+
+
 
       <div className="flex items-center justify-between mb-2">
         <h1 className="text-2xl font-bold">{article.title}</h1>

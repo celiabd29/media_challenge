@@ -62,7 +62,7 @@ export default function Home() {
     navigator.share({
       title: article.title,
       text: 'Découvrez ce contenu !',
-      url: window.location.href + `/article?id=${article.id}`,
+      url: window.location.href + `/article/${article.id}`,
     }).catch((error) => console.error('Erreur de partage :', error));
   };
 
@@ -147,7 +147,7 @@ export default function Home() {
             articles.slice(0, 5).map((article) => (
               <Link
                 key={article.id}
-                href={`/article?id=${article.id}`}
+                href={`/article/${article.id}`}
                 className="flex bg-white rounded-[16px] shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition md:text-lg md:p-6"
               >
                 <div className="relative pl-3 pt-2 flex-shrink-0 w-[100px] h-[130px] md:w-[180px] md:h-[220px] md:pr-4">
