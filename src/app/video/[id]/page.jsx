@@ -1,7 +1,6 @@
 "use client";
 import { use } from "react";
 import Video from "@/components/Video";
-import BottomNavbar from "@/components/BottomNavbar";
 
 export default function VideoPage({ params }) {
   const { id } = use(params);
@@ -9,7 +8,6 @@ export default function VideoPage({ params }) {
   return (
     <>
       <Video videoId={id} />
-      <BottomNavbar />
     </>
   );
 }

@@ -1,72 +1,91 @@
-'use client'
+'use client';
 
-import React from 'react'
+import { Heart, Share, BookmarkPlus } from 'lucide-react';
+import BookmarkButton from './BookmarkButton';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/supabase/supabaseClient';
+import { useAuth } from '@/contexts/AuthContext';
 
-export default function NaveShare() {
+export default function ActionBar({ contentId, type }) {
+  const { user } = useAuth();
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+
+  useEffect(() => {
+    const fetchLike = async () => {
+      if (!user || !contentId) return;
+
+      const { data } = await supabase
+        .from('likes')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('content_id', contentId)
+        .eq('content_type', type);
+
+      setLiked(data?.length > 0);
+
+      const { data: countData } = await supabase
+        .from(`${type}_like_counts`) // ex: article_like_counts
+        .select('like_count')
+        .eq('content_id', contentId)
+        .single();
+
+      setLikeCount(countData?.like_count || 0);
+    };
+
+    fetchLike();
+  }, [user, contentId, type]);
+
+  const handleToggleLike = async () => {
+    if (!user) return;
+
+    if (liked) {
+      await supabase
+        .from('likes')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('content_id', contentId)
+        .eq('content_type', type);
+    } else {
+      await supabase
+        .from('likes')
+        .insert([{ user_id: user.id, content_id: contentId, content_type: type }]);
+    }
+
+    setLiked(!liked);
+    const { data } = await supabase
+      .from(`${type}_like_counts`)
+      .select('like_count')
+      .eq('content_id', contentId)
+      .maybeSingle();
+    setLikeCount(data?.like_count || 0);
+  };
+
+  const handleShare = () => {
+    const url = typeof window !== 'undefined' ? window.location.href : '';
+    navigator.clipboard.writeText(url);
+    alert("Lien copié !");
+  };
+
   return (
-    <div className="fixed bottom-0 left-0 w-full bg-[#4069E1] h-[56px] flex items-center justify-around rounded-t-2xl">
-      {/* Signet */}
-      <button className="flex items-center justify-center w-10 h-10">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          fill="none"
-          stroke="#FFF"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-        </svg>
-      </button>
+    <div className="mt-6 mb-4 bg-blue-500 text-white rounded-t-2xl px-8 py-4 flex items-center justify-around">
+      <BookmarkButton contentId={contentId} type={type} />
 
-      {/* Cœur */}
-      <button className="flex items-center justify-center w-10 h-10">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          fill="none"
-          stroke="#FFF"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z" />
-        </svg>
-      </button>
-
-      {/* Partager */}
       <button
-        className="flex items-center justify-center w-10 h-10"
-        onClick={() => {
-          if (navigator.share) {
-            navigator.share({
-              title: document.title,
-              text: 'Découvrez ce contenu !',
-              url: window.location.href,
-            });
-          } else {
-            alert('Le partage n\'est pas supporté sur ce navigateur.');
-          }
-        }}
+        onClick={handleToggleLike}
+        className="p-2 rounded-full hover:bg-blue-400 transition"
+        aria-label="Like"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          fill="none"
-          stroke="#FFF"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M4 12v4a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4v-4" />
-          <polyline points="16 6 12 2 8 6" />
-          <line x1="12" y1="2" x2="12" y2="15" />
-        </svg>
+        <Heart className={`w-5 h-5 ${liked ? 'fill-white' : 'fill-none'}`} />
+      </button>
+
+      <button
+        onClick={handleShare}
+        className="p-2 rounded-full hover:bg-blue-400 transition"
+        aria-label="Partager"
+      >
+        <Share className="w-5 h-5" />
       </button>
     </div>
-  )
+  );
 }

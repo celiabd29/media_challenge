@@ -1,74 +1,77 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { supabase } from "../supabase/supabaseClient";
-import { Bookmark } from "lucide-react";
+import { useEffect, useState } from 'react';
+import { supabase } from '@/supabase/supabaseClient';
+import { useAuth } from '@/contexts/AuthContext';
+import { Bookmark } from 'lucide-react';
 
-export default function BookmarkButton({ contentId, contentType, title, description, image_url, duration = "5min" }) {
-  const [isBookmarked, setIsBookmarked] = useState(false);
-  const [userId, setUserId] = useState(null);
-
-  const tableMap = {
-    video: "favoris_videos",
-    article: "favoris_articles",
-    podcast: "favoris_podcasts",
-  };
-
-  const columnMap = {
-    video: "video_id",
-    article: "article_id",
-    podcast: "podcast_id",
-  };
+export default function BookmarkButton({ contentId, type }) {
+  const { user } = useAuth();
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [favoriId, setFavoriId] = useState(null);
 
   useEffect(() => {
-    const checkBookmark = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      const uid = session?.user?.id;
-      setUserId(uid);
-      if (!uid || !contentId || !contentType) return;
+    const checkFavori = async () => {
+      if (!user) return;
 
       const { data } = await supabase
-        .from(tableMap[contentType])
-        .select("*")
-        .eq("user_id", uid)
-        .eq(columnMap[contentType], contentId)
+        .from('favoris')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('content_id', contentId)
+        .eq('type', type)
         .single();
 
-      setIsBookmarked(!!data);
+      if (data) {
+        setIsFavorited(true);
+        setFavoriId(data.id);
+      }
     };
 
-    checkBookmark();
-  }, [contentId, contentType]);
+    checkFavori();
+  }, [user, contentId, type]);
 
-  const toggleBookmark = async () => {
-    if (!userId) return;
+  const toggleFavori = async () => {
+    if (!user) return;
 
-    const table = tableMap[contentType];
-    const column = columnMap[contentType];
-
-    if (isBookmarked) {
-      await supabase
-        .from(table)
+    if (isFavorited) {
+      const { error } = await supabase
+        .from('favoris')
         .delete()
-        .eq("user_id", userId)
-        .eq(column, contentId);
-      setIsBookmarked(false);
+        .eq('id', favoriId);
+
+      if (!error) {
+        setIsFavorited(false);
+        setFavoriId(null);
+      }
     } else {
-      await supabase.from(table).insert([{
-        user_id: userId,
-        [column]: contentId,
-        title,
-        description,
-        image_url,
-        duration,
-      }]);
-      setIsBookmarked(true);
+      const { data, error } = await supabase
+        .from('favoris')
+        .insert({
+          user_id: user.id,
+          content_id: contentId,
+          type,
+        })
+        .select()
+        .single();
+
+      if (!error) {
+        setIsFavorited(true);
+        setFavoriId(data.id);
+      }
     }
   };
 
   return (
-    <button onClick={toggleBookmark} className="p-3 bg-white rounded-full shadow-xl hover:bg-white/30 transition-all duration-200">
-      <Bookmark className={`w-5 h-5 ${isBookmarked ? "fill-blue-500 stroke-blue-500" : ""}`} />
+    <button
+      onClick={toggleFavori}
+      className={`
+        p-2 rounded-full transition text-white
+        hover:bg-blue-400
+      `}
+      aria-label="Ajouter aux favoris"
+    >
+      <Bookmark className={`w-6 h-6 ${isFavorited ? 'fill-white' : 'fill-none'}`} />
     </button>
   );
 }

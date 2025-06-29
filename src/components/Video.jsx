@@ -5,15 +5,15 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "../supabase/supabaseClient";
+import ShareModal from '@/components/ShareModal';
 import NavShare from "./NavShare";
-import { Heart } from "lucide-react";
+import { Heart, Share } from "lucide-react";
 import BookmarkButton from "./BookmarkButton";
 import quizImg from '../assets/img/emotion2.png'
 
 export default function Video({ videoId }) {
-
+  const [showShare, setShowShare] = useState(false);
   const router = useRouter();
-  const [query, setQuery] = useState("");
   const [isPlaying, setIsPlaying] = useState(false);
   const [showControls, setShowControls] = useState(true);
   const [userId, setUserId] = useState(null);
@@ -158,21 +158,7 @@ export default function Video({ videoId }) {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
             </button>
-
-            <div className="flex gap-2">
-              <button onClick={toggleLike} className="p-3 bg-white rounded-full shadow-xl">
-                <Heart fill={liked ? "red" : "none"} color="red" />
-              </button>
-
-              <BookmarkButton
-                contentId={videoId}
-                contentType="video"
-                title={video?.title || ""}
-                description={video?.description || ""}
-                image_url={video?.image_url || ""}
-                duration="5min"
-              />
-            </div>
+            <BookmarkButton contentId={videoId} type="video" />
           </div>
 
           <div className="absolute inset-0 flex items-center justify-center">
@@ -227,7 +213,29 @@ export default function Video({ videoId }) {
         </div>
       </Link>
 
-      <NavShare query={query} setQuery={setQuery} />
+<div className="fixed bottom-0 left-0 w-full bg-blue-500 rounded-t-2xl px-8 py-4 flex justify-around items-center z-50 text-white">
+  <div className="flex justify-center items-center">
+    <BookmarkButton contentId={videoId} type="video" />
+  </div>
+  <button
+    onClick={toggleLike}
+    className="p-2 rounded-full hover:bg-blue-400 transition flex justify-center items-center"
+    aria-label="Like"
+  >
+    <Heart className={`w-6 h-6 ${liked ? 'fill-white' : 'fill-none'}`} />
+  </button>
+  <button
+    onClick={() => setShowShare(true)}
+    className="p-2 rounded-full hover:bg-blue-400 transition flex justify-center items-center"
+    aria-label="Partager"
+  >
+    <Share className="w-6 h-6" />
+  </button>
+</div>
+
+{/* Modal de partage */}
+{showShare && <ShareModal onClose={() => setShowShare(false)} />}
+
     </main>
   );
 }

@@ -1,138 +1,151 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { supabase } from "../supabase/supabaseClient";
-import CardFavori from "../components/CardFavori";
-import BottomNavbar from "./BottomNavbar";
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { supabase } from '@/supabase/supabaseClient';
+import Link from 'next/link';
+import Image from 'next/image';
+import { Heart, Share } from 'lucide-react';
+import SearchBar from "../components/SearchBar";
+import { useAuth } from '@/contexts/AuthContext';
 
-export default function Favoris() {
-  const [selectedTab, setSelectedTab] = useState("Tout");
+export default function EcoutePage() {
+  const [favoris, setFavoris] = useState([]);
+  const [filtered, setFiltered] = useState([]);
+  const [selectedTab, setSelectedTab] = useState('Tout');
   const [query, setQuery] = useState("");
-  const [articleFavoris, setArticleFavoris] = useState([]);
-  const [videoFavoris, setVideoFavoris] = useState([]);
-  const [podcastFavoris, setPodcastFavoris] = useState([]);
+  const { user } = useAuth(); 
+  const router = useRouter();
+
+  const tabs = [
+    { key: 'Tout', label: 'Tout' },
+    { key: 'Article', label: 'Article' },
+    { key: 'Video', label: 'Vidéo' },
+    { key: 'Podcast', label: 'Podcast' },
+  ];
 
   useEffect(() => {
     const fetchFavoris = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      const uid = session?.user?.id;
-      if (!uid) return;
+      if (!user) return;
 
-      const { data: a } = await supabase
-        .from("favoris_articles")
-        .select("*, articles(*)")
-        .eq("user_id", uid);
+      const { data, error } = await supabase
+        .from('favoris')
+        .select('*')
+        .eq('user_id', user.id);
 
-      const { data: v } = await supabase
-        .from("favoris_videos")
-        .select("*, videos(*)")
-        .eq("user_id", uid);
+      if (error) {
+        console.error("Erreur chargement favoris :", error.message);
+        return;
+      }
 
-      const { data: p } = await supabase
-        .from("favoris_podcasts")
-        .select("*, podcasts(*)")
-        .eq("user_id", uid);
+      const loaded = await Promise.all(
+        data.map(async (fav) => {
+          let table = '';
+          if (fav.type === 'article') table = 'articles';
+          else if (fav.type === 'video') table = 'videos';
+          else if (fav.type === 'podcast') table = 'podcasts';
 
-      setArticleFavoris(a ?? []);
-      setVideoFavoris(v ?? []);
-      setPodcastFavoris(p ?? []);
+          const { data: content } = await supabase
+            .from(table)
+            .select('*')
+            .eq('id', fav.content_id)
+            .single();
+
+          if (!content) return null;
+
+          return {
+            ...content,
+            type: fav.type.charAt(0).toUpperCase() + fav.type.slice(1), // Article / Vidéo / Podcast
+            path: `/${fav.type}/${content.id}`,
+          };
+        })
+      );
+
+      const valid = loaded.filter((c) => c !== null);
+      setFavoris(valid);
+      setFiltered(valid);
     };
 
     fetchFavoris();
-  }, []);
+  }, [user]);
 
-  const renderCards = () => {
-    const cards = [];
-
-    if (selectedTab === "Tout" || selectedTab === "Article") {
-      cards.push(...articleFavoris.map((f) => (
-        <CardFavori
-          key={f.id}
-          type="Article"
-          title={f.articles.title}
-          description={f.articles.description}
-          image={f.articles.image_url}
-          duration={f.articles.duration}
-          likes={f.articles.likes}
-          href={`/article/${f.article_id}`}
-        />
-      )));
+  useEffect(() => {
+    if (selectedTab === 'Tout') {
+      setFiltered(favoris);
+    } else {
+      setFiltered(favoris.filter((item) => item.type === selectedTab));
     }
-
-    if (selectedTab === "Tout" || selectedTab === "Vidéo") {
-      cards.push(...videoFavoris.map((f) => (
-        <CardFavori
-          key={f.id}
-          type="Vidéo"
-          title={f.videos.title}
-          description={f.videos.description}
-          image={f.videos.image_url}
-          duration={f.videos.duration}
-          likes={f.videos.likes}
-          href={`/video/${f.video_id}`}
-        />
-      )));
-    }
-
-    if (selectedTab === "Tout" || selectedTab === "Podcast") {
-      cards.push(...podcastFavoris.map((f) => (
-        <CardFavori
-          key={f.id}
-          type="Podcast"
-          title={f.podcasts.title}
-          description={f.podcasts.description}
-          image={f.podcasts.image_url}
-          duration={f.podcasts.duration}
-          likes={f.podcasts.likes}
-          href={`/podcast/${f.podcast_id}`}
-        />
-      )));
-    }
-
-    return cards;
-  };
+  }, [selectedTab, favoris]);
 
   return (
     <div className="flex flex-col min-h-screen pb-20 bg-white px-4 py-6">
-      {/* En-tête */}
-      <header className="flex items-center justify-between mb-4">
-        <h1 className="text-black font-medium text-2xl md:text-3xl leading-6">Mes Favoris</h1>
-      </header>
-
-      {/* Barre de recherche */}
-      <input
-        type="text"
-        placeholder="🔍 Recherche"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        className="w-full px-4 py-2 mb-4 rounded-xl border text-sm placeholder-gray-400"
-      />
-
-      {/* Onglets type */}
-      <div className="flex gap-2 mb-6">
-        {["Tout", "Article", "Vidéo", "Podcast"].map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setSelectedTab(tab)}
-            className={`px-4 py-2 rounded-xl text-sm font-medium border transition ${
-              selectedTab === tab
-                ? "bg-blue-600 text-white"
-                : "bg-white text-blue-600 border-blue-600"
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
+      <div className="flex items-center gap-2 mb-6">
+        <button
+          onClick={() => router.push("/recherche")}
+          className="p-2 bg-white rounded-full shadow-xl"
+        >
+          <svg className="w-5 h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <h1 className="ml-2 text-2xl font-medium">Mes Favoris</h1>
       </div>
 
-      {/* Cartes de favoris */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {renderCards().filter((card) =>
-          card.props.title.toLowerCase().includes(query.toLowerCase())
-        )}
-      </section>
+      <SearchBar query={query} setQuery={setQuery} />
 
-      <BottomNavbar />
+      <nav className="flex mb-8 gap-2">
+        {tabs.map((tab) => {
+          const isActive = tab.key === selectedTab;
+          return (
+            <button
+              key={tab.key}
+              className={`flex-1 px-3 py-2 text-sm rounded-full border-2 ${
+                isActive ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-blue-500 border-blue-500'
+              }`}
+              onClick={() => setSelectedTab(tab.key)}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
+      </nav>
+
+      <div className="flex flex-col gap-4 sm:grid sm:grid-cols-2 md:grid-cols-3 md:gap-6">
+        {filtered.map((item) => (
+          <Link
+            href={item.path}
+            key={item.id}
+            className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-row sm:flex-col"
+          >
+            <Image
+              src={item.image_url || item.main_image_url || '/placeholder.png'}
+              alt={item.title}
+              width={130}
+              height={130}
+              className="w-[130px] h-[130px] object-cover sm:w-full sm:h-40"
+            />
+            <div className="p-4 flex flex-col justify-between gap-2 flex-1">
+              <div className="flex flex-col gap-1">
+                <span className="text-[10px] px-2 py-0.5 bg-pink-100 text-pink-700 rounded-full w-fit text-xs">
+                  {item.category || 'Favoris'}
+                </span>
+                <h3 className="text-sm font-semibold text-gray-900">{item.title}</h3>
+                <p className="text-sm text-gray-500 line-clamp-2">
+                  {item.description || item.content?.slice(0, 100)}...
+                </p>
+              </div>
+              <div className="flex justify-between items-center text-xs text-gray-400 pt-1">
+                <span>5 min</span>
+                <span>{item.type}</span>
+                <div className="flex gap-2 text-gray-400">
+                  <Heart className="w-4 h-4" />
+                  <Share className="w-4 h-4" />
+                </div>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }

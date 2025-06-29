@@ -3,7 +3,6 @@
 import { Suspense } from "react";
 import { useParams } from "next/navigation";
 import ArticlePage from "@/components/ArticlePage";
-import NavBottom from "@/components/BottomNavbar";
 
 export default function ArticleWrapper() {
   const params = useParams();
@@ -12,7 +11,6 @@ export default function ArticleWrapper() {
   return (
     <Suspense fallback={<p className="text-center mt-10 text-white">Chargement de l'article...</p>}>
       <ArticlePage id={id} />
-      <NavBottom />
     </Suspense>
   );
 }
