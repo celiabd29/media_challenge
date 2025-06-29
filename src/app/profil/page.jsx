@@ -3,9 +3,12 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/supabase/supabaseClient";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/BottomNavbar";
+import DarkModeToggle from "@/components/DarkModeToggle";
+import { useDarkMode } from '@/contexts/DarkModeContext';
 import { EyeIcon, EyeOffIcon, LogOut, Edit3 } from "lucide-react";
 
 export default function ProfilPage() {
+  const { darkMode } = useDarkMode();
   const [user, setUser] = useState(null);
   const [nom, setNom] = useState("");
   const [email, setEmail] = useState("");
@@ -75,7 +78,7 @@ export default function ProfilPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className={`${darkMode ? 'bg-[#242424] text-white' : 'bg-white text-black'} min-h-screen flex flex-col`}>
       {/* Bandeau haut + avatar */}
       <div className="w-full h-40 bg-[#C9DAF8] relative">
         <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
@@ -94,12 +97,12 @@ export default function ProfilPage() {
       </div>
 
       <div className="mt-20 flex flex-col items-center px-6 w-full max-w-sm self-center">
-        <h2 className="text-xl font-semibold text-gray-900">{nom}</h2>
+        <h2 className="text-xl font-semibold">{nom}</h2>
 
-        <p className="text-md self-start font-medium text-gray-900 mt-4 mb-3">Coordonnées et identifiants</p>
+        <p className="text-md self-start font-medium mt-4 mb-3">Coordonnées et identifiants</p>
 
         <div className="w-full mb-4">
-          <label className="text-sm text-gray-700 font-medium">Prénom et nom</label>
+          <label className="text-sm font-medium">Prénom et nom</label>
           <input
             type="text"
             value={nom}
@@ -109,7 +112,7 @@ export default function ProfilPage() {
         </div>
 
         <div className="w-full mb-4">
-          <label className="text-sm text-gray-700 font-medium">Email</label>
+          <label className="text-sm font-medium">Email</label>
           <input
             type="email"
             value={email}
@@ -119,7 +122,7 @@ export default function ProfilPage() {
         </div>
 
         <div className="w-full mb-6 relative">
-          <label className="text-sm text-gray-700 font-medium">Mot de passe</label>
+          <label className="text-sm font-medium">Mot de passe</label>
           <input
             type={showPassword ? "text" : "password"}
             value={password}
@@ -134,6 +137,8 @@ export default function ProfilPage() {
             {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
           </button>
         </div>
+
+        <DarkModeToggle />
 
         <button
           onClick={() => setShowLogoutConfirm(true)}

@@ -1,11 +1,16 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../supabase/supabaseClient";
+import DarkModeToggle from "@/components/DarkModeToggle";
+import { useDarkMode } from '@/contexts/DarkModeContext';
+
 import { Edit3 } from "lucide-react";
 
 export default function Dashboard() {
   const router = useRouter();
+  const { darkMode } = useDarkMode();
   const [user, setUser] = useState(null);
   const [articles, setArticles] = useState([]);
   const [videos, setVideos] = useState([]);
@@ -111,203 +116,142 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F7FB] p-4 flex flex-col gap-6">
-      {toastMessage && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-md z-50">
-          {toastMessage}
-        </div>
-      )}
+    <div className={`${darkMode ? 'bg-[#121212]' : 'bg-[#F5F7FB]'} min-h-screen p-4`}>
+      <div className="max-w-5xl mx-auto flex flex-col gap-6">
 
-      <div className="bg-white rounded-2xl shadow p-6 flex flex-col items-center">
-        <div className="relative group">
-          <img
-            src={user?.avatar_url || "/avatar-placeholder.png"}
-            alt="avatar"
-            className="w-28 h-28 rounded-full object-cover border-4 border-white shadow mb-4"
-          />
-          <label htmlFor="avatar-upload" className="absolute bottom-0 right-0 bg-white rounded-full p-1 border cursor-pointer hover:bg-gray-100">
-            <Edit3 size={16} className="text-gray-700" />
-          </label>
-          <input
-            type="file"
-            id="avatar-upload"
-            accept="image/*"
-            onChange={handleAvatarUpload}
-            className="hidden"
-          />
-        </div>
-        <h2 className="text-xl font-semibold text-gray-800">
-          {user?.nom || "Chargement..."}
-        </h2>
-        <p className="text-gray-500 text-sm">{user?.email || ""}</p>
+        {toastMessage && (
+          <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-md z-50">
+            {toastMessage}
+          </div>
+        )}
 
-        <div className="w-full mt-6 space-y-4">
-          <div>
-            <label className="text-sm text-gray-600">Mot de passe</label>
+        {/* Bloc Profil */}
+        <div className={`rounded-2xl shadow p-6 flex flex-col items-center ${darkMode ? 'bg-[#0F172A] text-white' : 'bg-white text-gray-800'}`}>
+          <div className="relative group">
+            <img
+              src={user?.avatar_url || "/avatar-placeholder.png"}
+              alt="avatar"
+              className="w-28 h-28 rounded-full object-cover border-4 border-white shadow mb-4"
+            />
+            <label htmlFor="avatar-upload" className="absolute bottom-0 right-0 bg-white dark:bg-gray-300 rounded-full p-1 border cursor-pointer hover:bg-gray-100">
+              <Edit3 size={16} className="text-gray-700" />
+            </label>
             <input
-              type="password"
-              value="password"
-              readOnly
-              className="w-full mt-1 p-2 border rounded bg-gray-100 cursor-not-allowed placeholder-gray-500"
+              type="file"
+              id="avatar-upload"
+              accept="image/*"
+              onChange={handleAvatarUpload}
+              className="hidden"
             />
           </div>
-          <button
-            onClick={handleLogout}
-            className="w-full text-center border border-blue-600 text-blue-600 py-2 rounded hover:bg-blue-50"
-          >
-            Déconnexion
-          </button>
+          <h2 className="text-xl font-semibold">{user?.nom || "Chargement..."}</h2>
+          <p className="text-sm opacity-70">{user?.email || ""}</p>
+
+          <div className="w-full mt-6 mb-6 space-y-4">
+          <div>
+  <label className="text-sm opacity-70">Mot de passe</label>
+  <input
+    type="password"
+    value="password"
+    readOnly
+    className={`w-full mt-1 p-2 mb-6 border rounded cursor-not-allowed
+    ${darkMode ? 'bg-[#1E293B] text-white border-gray-600' : 'bg-gray-100 text-gray-700 border-gray-300'}
+  `}/>
+</div>
+
+
+            <DarkModeToggle />
+
+            <button
+  onClick={handleLogout}
+  className={`w-full text-center py-2 rounded transition font-medium ${
+    darkMode
+      ? 'bg-[#0F172A] text-blue-400 border border-blue-500 hover:bg-blue-900'
+      : 'bg-white text-blue-600 border border-blue-600 hover:bg-blue-50'
+  }`}
+>
+  Déconnexion
+</button>
+
+          </div>
         </div>
+
+        {/* Bloc Publier */}
+        <div className={`rounded-2xl shadow p-6 ${darkMode ? 'bg-[#0F172A] text-white' : 'bg-white text-gray-800'}`}>
+  <h3 className="text-lg font-semibold mb-4">Publier du contenu</h3>
+  <div className="flex flex-col gap-4">
+    {[
+      { label: "Publier un article", href: "/publier/article", icon: "📄" },
+      { label: "Publier une vidéo", href: "/publier/video", icon: "📹" },
+      { label: "Publier un podcast", href: "/publier/podcast", icon: "🎧" },
+    ].map(({ label, href, icon }) => (
+      <button
+        key={href}
+        className={`flex items-center justify-between border rounded p-3 transition ${
+          darkMode
+            ? 'bg-[#0F172A] border-gray-600 text-white hover:bg-gray-800'
+            : 'bg-white border-gray-300 text-gray-800 hover:bg-gray-100'
+        }`}
+        onClick={() => router.push(href)}
+      >
+        <span className="flex items-center gap-2">
+          <span className={`${darkMode ? 'bg-blue-800' : 'bg-blue-100'} p-2 rounded-full`}>
+            {icon}
+          </span>
+          <span className="text-sm font-medium">{label}</span>
+        </span>
+        <span className="text-blue-600">→</span>
+      </button>
+    ))}
+  </div>
+</div>
+
+
+        {/* Bloc Gérer les contenus */}
+        <div className={`rounded-2xl shadow pb-18 p-6 ${darkMode ? 'bg-[#0F172A] text-white' : 'bg-white text-gray-800'}`}>
+  <h3 className="text-lg font-semibold mb-4">Mes contenus</h3>
+  <div className="space-y-6">
+    {[
+      { title: "Articles", items: articles, type: "article", table: "articles" },
+      { title: "Vidéos", items: videos, type: "video", table: "videos" },
+      { title: "Podcasts", items: podcasts, type: "podcast", table: "podcasts" },
+    ].map(({ title, items, type, table }) => (
+      <div key={type}>
+        <h4 className="text-sm font-semibold mb-2">{title}</h4>
+        {items.length === 0 ? (
+          <p className="text-sm opacity-70">Aucun {title.toLowerCase()} publié.</p>
+        ) : (
+          items.map((item) => (
+            <div
+              key={item.id}
+              className={`border rounded p-4 flex flex-col gap-2 transition ${
+                darkMode ? 'bg-[#1e293b] border-gray-600' : 'bg-gray-50 border-gray-300'
+              }`}
+            >
+              <span className="font-medium">{item.title}</span>
+              <div className="flex gap-3">
+                <button
+                  className="text-sm text-blue-600 hover:underline"
+                  onClick={() => router.push(`/modifier/${type}/${item.id}`)}
+                >
+                  ✏️ Modifier
+                </button>
+                <button
+                  className="text-sm text-red-500 hover:underline"
+                  onClick={() => handleDelete(table, item.id)}
+                >
+                  🗑️ Supprimer
+                </button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
+    ))}
+  </div>
+</div>
 
-      {/* Publier du contenu */}
-      <div className="bg-white rounded-2xl shadow p-6">
-        <h3 className="text-lg font-semibold mb-4 text-gray-800">
-          Publier du contenu
-        </h3>
-        <div className="flex flex-col gap-4">
-          <button
-            className="flex items-center justify-between border border-gray-300 rounded p-3 hover:bg-gray-50"
-            onClick={() => router.push("/publier/article")}
-          >
-            <span className="flex items-center gap-2">
-              <span className="bg-blue-100 p-2 rounded-full">📄</span>
-              <span className="text-sm font-medium text-gray-800">
-                Publier un article
-              </span>
-            </span>
-            <span className="text-blue-600">→</span>
-          </button>
-          <button
-            className="flex items-center justify-between border border-gray-300 rounded p-3 hover:bg-gray-50"
-            onClick={() => router.push("/publier/video")}
-          >
-            <span className="flex items-center gap-2">
-              <span className="bg-blue-100 p-2 rounded-full">📹</span>
-              <span className="text-sm font-medium text-gray-800">
-                Publier une vidéo
-              </span>
-            </span>
-            <span className="text-blue-600">→</span>
-          </button>
-          <button
-            className="flex items-center justify-between border border-gray-300 rounded p-3 hover:bg-gray-50"
-            onClick={() => router.push("/publier/podcast")}
-          >
-            <span className="flex items-center gap-2">
-              <span className="bg-blue-100 p-2 rounded-full">🎧</span>
-              <span className="text-sm font-medium text-gray-800">
-                Publier un podcast
-              </span>
-            </span>
-            <span className="text-blue-600">→</span>
-          </button>
-        </div>
-      </div>
 
-      {/* Gérer les contenus publiés */}
-      <div className="bg-white rounded-2xl shadow p-6">
-        <h3 className="text-lg font-semibold mb-4 text-gray-800">
-          Mes contenus
-        </h3>
-        <div className="space-y-6">
-          {/* Articles */}
-          <div>
-            <h4 className="text-sm font-semibold text-gray-600 mb-2">
-              Articles
-            </h4>
-            {articles.length === 0 ? (
-              <p className="text-gray-500 text-sm">Aucun article publié.</p>
-            ) : (
-              articles.map((a) => (
-                <div
-                  key={a.id}
-                  className="border rounded p-4 flex flex-col gap-2 bg-gray-50"
-                >
-                  <span className="text-gray-800 font-medium">{a.title}</span>
-                  <div className="flex gap-3">
-                    <button
-                      className="text-sm text-blue-600"
-                      onClick={() => router.push(`/modifier/article/${a.id}`)}
-                    >
-                      ✏️ Modifier
-                    </button>
-                    <button
-                      className="text-sm text-red-500"
-                      onClick={() => handleDelete("articles", a.id)}
-                    >
-                      🗑️ Supprimer
-                    </button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-
-          {/* Vidéos */}
-          <div>
-            <h4 className="text-sm font-semibold text-gray-600 mb-2">Vidéos</h4>
-            {videos.length === 0 ? (
-              <p className="text-gray-500 text-sm">Aucune vidéo publiée.</p>
-            ) : (
-              videos.map((v) => (
-                <div
-                  key={v.id}
-                  className="border rounded p-4 flex flex-col gap-2 bg-gray-50"
-                >
-                  <span className="text-gray-800 font-medium">{v.title}</span>
-                  <div className="flex gap-3">
-                    <button
-                      className="text-sm text-blue-600"
-                      onClick={() => router.push(`/modifier/video/${v.id}`)}
-                    >
-                      ✏️ Modifier
-                    </button>
-                    <button
-                      className="text-sm text-red-500"
-                      onClick={() => handleDelete("videos", v.id)}
-                    >
-                      🗑️ Supprimer
-                    </button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-
-          {/* Podcasts */}
-          <div>
-            <h4 className="text-sm font-semibold text-gray-600 mb-2">
-              Podcasts
-            </h4>
-            {podcasts.length === 0 ? (
-              <p className="text-gray-500 text-sm">Aucun podcast publié.</p>
-            ) : (
-              podcasts.map((p) => (
-                <div
-                  key={p.id}
-                  className="border rounded p-4 flex flex-col gap-2 bg-gray-50"
-                >
-                  <span className="text-gray-800 font-medium">{p.title}</span>
-                  <div className="flex gap-3">
-                    <button
-                      className="text-sm text-blue-600"
-                      onClick={() => router.push(`/modifier/podcast/${p.id}`)}
-                    >
-                      ✏️ Modifier
-                    </button>
-                    <button
-                      className="text-sm text-red-500"
-                      onClick={() => handleDelete("podcasts", p.id)}
-                    >
-                      🗑️ Supprimer
-                    </button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
       </div>
     </div>
   );

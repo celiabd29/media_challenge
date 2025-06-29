@@ -2,6 +2,7 @@
 import "./globals.css";
 import ClientLayoutWrapper from "../components/ClientLayoutWrapper";
 import BottomNavbar from "../components/BottomNavbar";
+import { DarkModeProvider } from "@/contexts/DarkModeContext"; // ✅ Ajout du Provider
 
 export const metadata = {
   title: "Osmose",
@@ -41,10 +42,12 @@ export default function RootLayout({ children }) {
         <link rel="icon" type="image/png" sizes="512x512" href="/favicon/web-app-manifest-512x512.png" />
       </head>
       <body suppressHydrationWarning={true}>
-        <ClientLayoutWrapper>
-          {children}
-          {/* <BottomNavbar /> */}
-        </ClientLayoutWrapper>
+        <DarkModeProvider> {/* ✅ Début du Provider */}
+          <ClientLayoutWrapper>
+            {children}
+            {/* <BottomNavbar /> */}
+          </ClientLayoutWrapper>
+        </DarkModeProvider> {/* ✅ Fin du Provider */}
       </body>
     </html>
   );
