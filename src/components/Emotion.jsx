@@ -34,9 +34,13 @@ export default function EmotionsPage() {
       ),
     },
     {
-      key: "Vidéo",
+      key: 'Vidéo',
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}><rect x="2" y="6" width="15" height="12" rx="2" ry="2" /><polygon points="10 8 16 12 10 16" /></svg>
+        <img
+          src="/icons/play-circle.png"
+          alt="Vidéo"
+          style={{ width: 18, height: 18, objectFit: 'contain' }}
+        />
       ),
     },
     {
@@ -50,19 +54,34 @@ export default function EmotionsPage() {
   useEffect(() => {
     const fetchAll = async () => {
       const [a, v, p] = await Promise.all([
-        supabase.from("articles").select("*").eq("category", "Émotions"),
-        supabase.from("videos").select("*").eq("category", "Émotions"),
-        supabase.from("podcasts").select("*").eq("category", "Émotions"),
+        supabase.from("articles").select("*").eq("category_id", 2),
+        supabase.from("videos").select("*").eq("category_id", 2),
+        supabase.from("podcasts").select("*").eq("category_id", 2),
       ]);
-
-      const articles = (a.data || []).map((item) => ({ ...item, type: "Article", path: `/article/${item.id}` }));
-      const videos = (v.data || []).map((item) => ({ ...item, type: "Vidéo", path: `/video/${item.id}` }));
-      const podcasts = (p.data || []).map((item) => ({ ...item, type: "Podcast", path: `/podcast/${item.id}` }));
-
+    
+      const articles = (a.data || []).map((item) => ({
+        ...item,
+        type: "Article",
+        path: `/article/${item.id}`,
+      }));
+    
+      const videos = (v.data || []).map((item) => ({
+        ...item,
+        type: "Vidéo",
+        path: `/video/${item.id}`,
+      }));
+    
+      const podcasts = (p.data || []).map((item) => ({
+        ...item,
+        type: "Podcast",
+        path: `/podcast/${item.id}`,
+      }));
+    
       const all = [...articles, ...videos, ...podcasts];
       setContents(all);
       setFiltered(all);
     };
+    
     fetchAll();
   }, []);
 

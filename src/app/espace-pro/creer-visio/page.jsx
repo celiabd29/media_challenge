@@ -7,7 +7,7 @@ export default function CreerVisio() {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [link, setLink] = useState("");
+  const [roomUrl, setRoomUrl] = useState("");
   const [date, setDate] = useState("");
   const [hour, setHour] = useState("");
   const [image, setImage] = useState(null);
@@ -24,7 +24,8 @@ export default function CreerVisio() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Erreur lors de la génération du lien");
-      setLink(data.hostRoomUrl || data.roomUrl || "");
+      setRoomUrl(data.hostRoomUrl || data.roomUrl || "");
+
     } catch (err) {
       setMessage("❌ " + err.message);
     } finally {
@@ -66,7 +67,7 @@ export default function CreerVisio() {
     const payload = {
       title,
       description,
-      link,
+      room_url: roomUrl,
       date,
       hour,
       image_url: imageUrl,
@@ -130,8 +131,8 @@ export default function CreerVisio() {
             type="url"
             className="w-full border px-3 py-2 rounded mt-1 text-gray-600"
             placeholder="https://whereby.com/..."
-            value={link}
-            onChange={(e) => setLink(e.target.value)}
+            value={roomUrl}
+            onChange={(e) => setRoomUrl(e.target.value)}
             required
           />
         </div>

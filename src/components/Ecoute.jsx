@@ -45,12 +45,14 @@ export default function EcoutePage() {
     {
       key: 'Vidéo',
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-          <rect x="2" y="6" width="15" height="12" rx="2" ry="2" />
-          <polygon points="10 8 16 12 10 16" />
-        </svg>
+        <img
+          src="/icons/play-circle.png"
+          alt="Vidéo"
+          style={{ width: 18, height: 18, objectFit: 'contain' }}
+        />
       ),
     },
+    
     {
       key: 'Podcast',
       icon: (
@@ -67,33 +69,34 @@ export default function EcoutePage() {
   useEffect(() => {
     const fetchAll = async () => {
       const [a, v, p] = await Promise.all([
-        supabase.from('articles').select('*'),
-        supabase.from('videos').select('*'),
-        supabase.from('podcasts').select('*'),
+        supabase.from('articles').select('*').eq('category_id', 1),
+        supabase.from('videos').select('*').eq('category_id', 1),
+        supabase.from('podcasts').select('*').eq('category_id', 1),
       ]);
-
+    
       const articles = (a.data || []).map((item) => ({
         ...item,
         type: 'Article',
         path: `/article/${item.id}`,
       }));
-
+    
       const videos = (v.data || []).map((item) => ({
         ...item,
         type: 'Vidéo',
         path: `/video/${item.id}`,
       }));
-
+    
       const podcasts = (p.data || []).map((item) => ({
         ...item,
         type: 'Podcast',
         path: `/podcast/${item.id}`,
       }));
-
+    
       const all = [...articles, ...videos, ...podcasts];
       setContents(all);
       setFiltered(all);
     };
+    
 
     fetchAll();
   }, []);
@@ -172,7 +175,7 @@ export default function EcoutePage() {
             />
             <div className="p-4 flex flex-col justify-between gap-2 flex-1">
               <div className="flex flex-col gap-1">
-                <span className="text-[10px] px-2 py-0.5 bg-pink-100 text-pink-700 rounded-full w-fit text-xs">
+                <span className="text-xs px-3 py-1 bg-pink-100 text-pink-700 font-medium rounded-full w-fit">
                   {item.category || 'Écoute'}
                 </span>
                 <h3 className={`text-sm font-semibold ${darkMode ? "text-white" : "text-gray-900"}`}>{item.title}</h3>

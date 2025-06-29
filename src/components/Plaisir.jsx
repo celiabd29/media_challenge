@@ -30,19 +30,34 @@ export default function PlaisirPage() {
   useEffect(() => {
     const fetchAll = async () => {
       const [a, v, p] = await Promise.all([
-        supabase.from('articles').select('*').eq('category', 'Plaisir'),
-        supabase.from('videos').select('*').eq('category', 'Plaisir'),
-        supabase.from('podcasts').select('*').eq('category', 'Plaisir'),
+        supabase.from("articles").select("*").eq("category_id", 8),
+        supabase.from("videos").select("*").eq("category_id", 8),
+        supabase.from("podcasts").select("*").eq("category_id", 8),
       ]);
-
-      const articles = (a.data || []).map((item) => ({ ...item, type: 'Article', path: `/article/${item.id}` }));
-      const videos = (v.data || []).map((item) => ({ ...item, type: 'Vidéo', path: `/video/${item.id}` }));
-      const podcasts = (p.data || []).map((item) => ({ ...item, type: 'Podcast', path: `/podcast/${item.id}` }));
-
+    
+      const articles = (a.data || []).map((item) => ({
+        ...item,
+        type: "Article",
+        path: `/article/${item.id}`,
+      }));
+    
+      const videos = (v.data || []).map((item) => ({
+        ...item,
+        type: "Vidéo",
+        path: `/video/${item.id}`,
+      }));
+    
+      const podcasts = (p.data || []).map((item) => ({
+        ...item,
+        type: "Podcast",
+        path: `/podcast/${item.id}`,
+      }));
+    
       const all = [...articles, ...videos, ...podcasts];
       setContents(all);
       setFiltered(all);
     };
+    
 
     fetchAll();
   }, []);

@@ -44,10 +44,11 @@ export default function EcoutePage() {
     {
       key: 'Vidéo',
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-          <rect x="2" y="6" width="15" height="12" rx="2" ry="2" />
-          <polygon points="10 8 16 12 10 16" />
-        </svg>
+        <img
+          src="/icons/play-circle.png"
+          alt="Vidéo"
+          style={{ width: 18, height: 18, objectFit: 'contain' }}
+        />
       ),
     },
     {
@@ -118,20 +119,11 @@ export default function EcoutePage() {
 
   return (
     <div className={`flex flex-col min-h-screen pb-20 px-4 py-6 ${darkMode ? 'bg-[#0F172A] text-white' : 'bg-white text-gray-800'}`}>
-      <div className="flex items-center gap-2 mb-6">
-        <button
-          onClick={() => router.push("/recherche")}
-          className={`p-2 rounded-full shadow-xl ${darkMode ? 'bg-[#1E293B]' : 'bg-white'}`}
-        >
-          <svg className="w-5 h-5" fill="none" stroke={darkMode ? "white" : "currentColor"} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-        <h1 className={`ml-2 text-2xl font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-  Mes Favoris
-</h1>
-
-      </div>
+      <header className="flex items-center justify-between mb-4">
+        <h1 className={`font-medium text-2xl md:text-3xl leading-6 ${darkMode ? 'text-white' : 'text-black'}`}>
+          Mes Favoris
+        </h1>
+      </header>
 
       <SearchBar query={query} setQuery={setQuery} />
 

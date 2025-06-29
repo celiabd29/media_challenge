@@ -65,33 +65,34 @@ export default function ConsentementPage() {
   useEffect(() => {
     const fetchAll = async () => {
       const [a, v, p] = await Promise.all([
-        supabase.from('articles').select('*').eq('category', 'Consentement'),
-        supabase.from('videos').select('*').eq('category', 'Consentement'),
-        supabase.from('podcasts').select('*').eq('category', 'Consentement'),
+        supabase.from("articles").select("*").eq("category_id", 3),
+        supabase.from("videos").select("*").eq("category_id", 3),
+        supabase.from("podcasts").select("*").eq("category_id", 3),
       ]);
-
+    
       const articles = (a.data || []).map((item) => ({
         ...item,
-        type: 'Article',
+        type: "Article",
         path: `/article/${item.id}`,
       }));
-
+    
       const videos = (v.data || []).map((item) => ({
         ...item,
-        type: 'Vidéo',
+        type: "Vidéo",
         path: `/video/${item.id}`,
       }));
-
+    
       const podcasts = (p.data || []).map((item) => ({
         ...item,
-        type: 'Podcast',
+        type: "Podcast",
         path: `/podcast/${item.id}`,
       }));
-
+    
       const all = [...articles, ...videos, ...podcasts];
       setContents(all);
       setFiltered(all);
     };
+    
 
     fetchAll();
   }, []);

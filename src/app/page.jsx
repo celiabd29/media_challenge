@@ -55,6 +55,28 @@ export default function Home() {
     };
     fetchArticles();
   }, []);
+  useEffect(() => {
+    const fetchArticlesWithLikes = async () => {
+      const [{ data: articles }, { data: likeCounts }] = await Promise.all([
+        supabase.from("articles").select("*"),
+        supabase.from("article_like_counts").select("*"),
+      ]);
+  
+      // Fusionner les likes avec les articles
+      const articlesWithLikes = articles.map((article) => {
+        const likeEntry = likeCounts.find((like) => like.content_id === article.id);
+        return {
+          ...article,
+          like_count: likeEntry?.like_count ?? 0,
+        };
+      });
+  
+      setArticles(articlesWithLikes);
+    };
+  
+    fetchArticlesWithLikes();
+  }, []);
+  
 
   const handleShare = (article) => {
     if (!navigator.share) {
@@ -155,7 +177,7 @@ Catégories</h2>
     </section>
 
     <section className="mt-8 md:mt-12 mb-8 w-full">
-      <h2 className="text-xl md:text-2xl font-semibold text-black mb-6">Les plus populaires</h2>
+    <h2 className={`text-xl md:text-2xl mb-4 font-semibold ${darkMode ? 'text-white' : 'text-gray-800'}`}>Les plus populaires</h2>
       <div className="flex flex-col gap-4 md:gap-8">
         {articles.length > 0 ? (
           articles.slice(0, 5).map((article) => (
@@ -218,14 +240,21 @@ Catégories</h2>
                         <circle cx="12" cy="12" r="10"/>
                         <polyline points="12,6 12,12 16,14"/>
                       </svg> 5min</span>
-                  <span className="flex items-center gap-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/>
-                        <polyline points="16,6 12,2 8,6"/>
-                        <line x1="12" y1="2" x2="12" y2="15"/>
-                      </svg> Article</span>
-                  <span className="flex items-center gap-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                      </svg>{article.article_like_counts?.like_count ?? 0}</span>
+                  <span className="flex items-center gap-1">
+                  <Image
+  src="/icons/document-text.png"
+  alt="Article"
+  width={16}
+  height={16}
+/>
+ Article</span>
+ <span className="flex items-center gap-1">
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+  </svg>
+  {article.like_count}
+</span>
+
                 </div>
               </div>
             </Link>

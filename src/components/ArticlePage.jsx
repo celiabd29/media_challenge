@@ -133,7 +133,7 @@ export default function ArticlePage({ id }) {
   
         {/* Contenu */}
         <div className="px-4">
-          <h1 className="text-2xl font-bold mb-2">{article.title}</h1>
+          <h1 className={`text-2xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>{article.title}</h1>
           <p className={`text-sm mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-500'}`}>{likeCount} ❤️</p>
   
           <div className="space-y-4 text-base leading-relaxed">

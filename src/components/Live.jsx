@@ -21,20 +21,12 @@ export default function Visios() {
   }, []);
 
   return (
-    <div className={`min-h-screen p-4 ${darkMode ? 'bg-[#0F172A] text-white' : 'bg-white text-gray-800'}`}>
-      <div className="flex items-center gap-2 mb-6">
-        <button
-          onClick={() => router.push("/recherche")}
-          className={`p-2 rounded-full shadow-xl ${darkMode ? 'bg-[#1E293B]' : 'bg-white'}`}
-        >
-          <svg className="w-5 h-5" fill="none" stroke={darkMode ? "white" : "currentColor"} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-        <h1 className={`ml-2 text-2xl font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-        Visioconférences
-</h1>
-</div>
+    <div className={`flex flex-col min-h-screen pb-20 px-4 py-6 ${darkMode ? 'bg-[#0F172A] text-white' : 'bg-white text-gray-800'}`}>
+      <header className="flex items-center justify-between mb-4">
+        <h1 className={`font-medium text-2xl md:text-3xl leading-6 ${darkMode ? 'text-white' : 'text-black'}`}>
+          Visioconférences
+        </h1>
+      </header>
       <h2 className={`text-lg font-semibold text-start mb-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
         Nos prochaines visioconférences
       </h2>
