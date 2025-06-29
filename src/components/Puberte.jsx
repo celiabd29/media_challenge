@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { Heart, Share } from 'lucide-react';
 import SearchBar from "../components/SearchBar";
 import React from 'react';
+import { useDarkMode } from "../contexts/DarkModeContext";
 
 export default function PubertePage() {
   const [contents, setContents] = useState([]);
@@ -15,6 +16,7 @@ export default function PubertePage() {
   const [selectedTab, setSelectedTab] = useState('Tout');
   const [query, setQuery] = useState("");
   const router = useRouter();
+  const { darkMode } = useDarkMode();
 
   const tabs = [
     {
@@ -101,30 +103,32 @@ export default function PubertePage() {
       setFiltered(contents.filter((item) => item.type === selectedTab));
     }
   }, [selectedTab, contents]);
-
+  
   return (
-    <div className="flex flex-col min-h-screen pb-20 bg-white px-4 py-6">
+    <div className={`flex flex-col min-h-screen pb-20 px-4 py-6 ${darkMode ? "bg-gray-900 text-white" : "bg-white text-gray-800"}`}>
       <div className="flex items-center gap-2 mb-6">
         <button
           onClick={() => router.push("/recherche")}
-          className="p-2 bg-white rounded-full shadow-xl"
+          className={`p-2 rounded-full shadow-xl ${darkMode ? "bg-gray-700 text-white" : "bg-white text-gray-800"}`}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <h1 className="ml-2 text-2xl font-medium">Puberté</h1>
+        <h1 className={`ml-2 text-2xl font-medium ${darkMode ? "text-white" : "text-gray-800"}`}>Puberté</h1>
       </div>
-
+  
       <SearchBar query={query} setQuery={setQuery} />
-
+  
       <nav className="flex mb-8 gap-2">
         {tabs.map((tab) => {
           const isActive = tab.key === selectedTab;
-          const base = 'flex flex-col items-center justify-center px-3 py-4 rounded-lg text-sm font-medium border-2 flex-1 min-w-0 transition';
-          const activeClasses = 'bg-blue-500 border-blue-500 text-white';
-          const inactiveClasses = 'bg-white border-blue-500 text-blue-500 hover:border-blue-600';
-
+          const base = "flex flex-col items-center justify-center px-3 py-4 rounded-lg text-sm font-medium border-2 flex-1 min-w-0 transition";
+          const activeClasses = "bg-blue-500 border-blue-500 text-white";
+          const inactiveClasses = darkMode
+            ? "bg-gray-800 border-blue-500 text-blue-400 hover:border-blue-400"
+            : "bg-white border-blue-500 text-blue-500 hover:border-blue-600";
+  
           return (
             <button
               key={tab.key}
@@ -134,23 +138,25 @@ export default function PubertePage() {
               {React.cloneElement(tab.icon, {
                 width: 20,
                 height: 20,
-                stroke: isActive ? '#ffffff' : '#3b82f6',
+                stroke: isActive ? "#ffffff" : "#3b82f6",
               })}
               <span className="capitalize text-xs pt-1">{tab.key}</span>
             </button>
           );
         })}
       </nav>
-
+  
       <div className="flex flex-col gap-4 sm:grid sm:grid-cols-2 md:grid-cols-3 md:gap-6">
         {filtered.map((item) => (
           <Link
             href={item.path}
             key={item.id}
-            className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-row sm:flex-col"
+            className={`rounded-xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-row sm:flex-col ${
+              darkMode ? "bg-gray-800 border border-gray-700 text-white" : "bg-white border border-gray-200 text-gray-900"
+            }`}
           >
             <Image
-              src={item.image_url || item.main_image_url || '/placeholder.png'}
+              src={item.image_url || item.main_image_url || "/placeholder.png"}
               alt={item.title}
               width={130}
               height={130}
@@ -159,18 +165,18 @@ export default function PubertePage() {
             <div className="p-4 flex flex-col justify-between gap-2 flex-1">
               <div className="flex flex-col gap-1">
                 <span className="text-[10px] px-2 py-0.5 bg-pink-100 text-pink-700 rounded-full w-fit text-xs">
-                  {item.category || 'Puberté'}
+                  {item.category || "Puberté"}
                 </span>
-                <h3 className="text-sm font-semibold text-gray-900">{item.title}</h3>
-                <p className="text-sm text-gray-500 line-clamp-2">
+                <h3 className="text-sm font-semibold">{item.title}</h3>
+                <p className={`text-sm ${darkMode ? "text-gray-300" : "text-gray-500"} line-clamp-2`}>
                   {item.description || item.content?.slice(0, 100)}...
                 </p>
               </div>
-              <div className="flex justify-between items-center text-xs text-gray-400 pt-1">
+              <div className={`flex justify-between items-center text-xs ${darkMode ? "text-gray-400" : "text-gray-500"} pt-1`}>
                 <span>5 min</span>
                 <span>{item.type}</span>
                 <span>300</span>
-                <div className="flex gap-2 text-gray-400">
+                <div className="flex gap-2">
                   <Heart className="w-4 h-4" />
                   <Share className="w-4 h-4" />
                 </div>
@@ -181,4 +187,4 @@ export default function PubertePage() {
       </div>
     </div>
   );
-}
+          }  

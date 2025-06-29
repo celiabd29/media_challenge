@@ -9,6 +9,7 @@ import Image from "next/image";
 import { Heart, Share } from "lucide-react";
 import ecouteImg from "../assets/img/ecoute2.png";
 import ShareModal from '@/components/ShareModal';
+import { useDarkMode } from "../contexts/DarkModeContext";
 
 
 export default function ArticlePage({ id }) {
@@ -18,6 +19,7 @@ export default function ArticlePage({ id }) {
   const [likeCount, setLikeCount] = useState(0);
   const [showShare, setShowShare] = useState(false);
   const router = useRouter();
+  const { darkMode } = useDarkMode();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -103,97 +105,102 @@ export default function ArticlePage({ id }) {
     );
   }
 
-  return (
-    <div className="w-screen min-h-screen bg-white text-gray-800 pb-32">
-
-
-      {article.image_url && (
-        <div className="w-full h-[200px] md:h-[400px] lg:h-[500px] relative mb-6">
-          <Image
-            src={article.image_url}
-            alt="Article"
-            fill
-            className="w-full h-[200px] md:h-[400px] lg:h-[500px] object-cover rounded-b-xl"
-          />
-        </div>
-      )}
-      <div className="absolute top-4 left-8 right-8 flex items-center justify-between z-10">
-            <button onClick={() => router.back()} className="p-2 bg-white rounded-full shadow-xl">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <BookmarkButton contentId={article.id} type="video" />
-          </div>
-<div className="px-4">
-      <h1 className="text-2xl font-bold mb-2">{article.title}</h1>
-
-      <p className="text-sm text-gray-500 mb-4">{likeCount} ❤️</p>
-
-      <div className="space-y-4 text-base leading-relaxed">
-        {article.content?.split("\n").map((para, i) => (
-          <p key={i}>
-            {para.trim().startsWith("*") ? (
-              <strong>{para.replace("*", "").trim()}</strong>
-            ) : (
-              para
-            )}
-          </p>
-        ))}
-      </div>
-
-      <div className="mt-10 pb-18">
-        <Link href="/quiz">
-          <div className="flex items-center bg-[#E9C4DE] h-[89px] rounded-[8px] px-4 shadow-sm hover:shadow-md transition-shadow">
+    return (
+      <div className={`w-screen min-h-screen pb-32 ${darkMode ? 'bg-[#0F172A] text-white' : 'bg-white text-gray-800'}`}>
+        {article.image_url && (
+          <div className="w-full h-[200px] md:h-[400px] lg:h-[500px] relative mb-6">
             <Image
-              src={ecouteImg}
-              alt="Illustration quiz"
-              width={100}
-              height={100}
-              className="object-cover"
+              src={article.image_url}
+              alt="Article"
+              fill
+              className="w-full h-[200px] md:h-[400px] lg:h-[500px] object-cover rounded-b-xl"
             />
-            <span className="ml-4 flex-1 text-white font-medium">
-              Effectuez le quiz
-            </span>
-            <span className="ml-4 flex items-center justify-center w-6 h-6 rounded-full bg-white shadow">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-4 h-4 text-black"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </span>
           </div>
-        </Link>
+        )}
+  
+        {/* Bouton retour + favoris */}
+        <div className="absolute top-4 left-8 right-8 flex items-center justify-between z-10">
+          <button
+            onClick={() => router.back()}
+            className={`p-2 rounded-full shadow-xl ${darkMode ? 'bg-[#1E293B]' : 'bg-white'}`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke={darkMode ? '#fff' : 'currentColor'} strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <BookmarkButton contentId={article.id} type="video" />
+        </div>
+  
+        {/* Contenu */}
+        <div className="px-4">
+          <h1 className="text-2xl font-bold mb-2">{article.title}</h1>
+          <p className={`text-sm mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-500'}`}>{likeCount} ❤️</p>
+  
+          <div className="space-y-4 text-base leading-relaxed">
+            {article.content?.split("\n").map((para, i) => (
+              <p key={i}>
+                {para.trim().startsWith("*") ? (
+                  <strong>{para.replace("*", "").trim()}</strong>
+                ) : (
+                  para
+                )}
+              </p>
+            ))}
+          </div>
+  
+          {/* Quiz */}
+          <div className="mt-10 pb-18">
+            <Link href="/quiz">
+              <div className="flex items-center bg-[#E9C4DE] h-[89px] rounded-[8px] px-4 shadow-sm hover:shadow-md transition-shadow">
+                <Image
+                  src={ecouteImg}
+                  alt="Illustration quiz"
+                  width={100}
+                  height={100}
+                  className="object-cover"
+                />
+                <span className="ml-4 flex-1 text-white font-medium">
+                  Effectuez le quiz
+                </span>
+                <span className="ml-4 flex items-center justify-center w-6 h-6 rounded-full bg-white shadow">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-4 h-4 text-black"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </span>
+              </div>
+            </Link>
+          </div>
+        </div>
+  
+        {/* Barre d’action fixe */}
+        <div className={`fixed bottom-0 left-0 w-full rounded-t-2xl px-8 py-4 flex justify-around items-center z-50 ${darkMode ? 'bg-blue-700 text-white' : 'bg-blue-500 text-white'}`}>
+          <div className="flex justify-center items-center">
+            <BookmarkButton contentId={article.id} type="article" />
+          </div>
+          <button
+            onClick={handleToggleLike}
+            className="p-2 rounded-full hover:bg-blue-400 transition flex justify-center items-center"
+            aria-label="Like"
+          >
+            <Heart className={`w-6 h-6 ${liked ? 'fill-white' : 'fill-none'}`} />
+          </button>
+          <button
+            onClick={() => setShowShare(true)}
+            className="p-2 rounded-full hover:bg-blue-400 transition flex justify-center items-center"
+            aria-label="Partager"
+          >
+            <Share className="w-6 h-6" />
+          </button>
+        </div>
+  
+        {showShare && <ShareModal onClose={() => setShowShare(false)} />}
       </div>
-      </div>
-
-      <div className="fixed bottom-0 left-0 w-full bg-blue-500 rounded-t-2xl px-8 py-4 flex justify-around items-center z-50 text-white">
-  <div className="flex justify-center items-center">
-    <BookmarkButton contentId={article.id} type="article" />
-  </div>
-  <button
-    onClick={handleToggleLike}
-    className="p-2 rounded-full hover:bg-blue-400 transition flex justify-center items-center"
-    aria-label="Like"
-  >
-    <Heart className={`w-6 h-6 ${liked ? 'fill-white' : 'fill-none'}`} />
-  </button>
-  <button
-  onClick={() => setShowShare(true)}
-  className="p-2 rounded-full hover:bg-blue-400 transition flex justify-center items-center"
-  aria-label="Partager"
->
-  <Share className="w-6 h-6" />
-</button>
-
-</div>
-{showShare && <ShareModal onClose={() => setShowShare(false)} />}
-
-    </div>
-  );
-}
+    );
+  }

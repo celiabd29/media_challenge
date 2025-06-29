@@ -9,11 +9,13 @@ import ShareModal from '@/components/ShareModal';
 import BookmarkButton from '@/components/BookmarkButton';
 import { supabase } from '@/supabase/supabaseClient';
 import quizImg from '../assets/img/emotion2.png';
+import { useDarkMode } from "../contexts/DarkModeContext";
+
 
 export default function Podcast({ id }) {
 
   const router = useRouter();
-
+  const { darkMode } = useDarkMode();
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -80,7 +82,7 @@ export default function Podcast({ id }) {
   }
 
   return (
-    <main className="min-h-screen bg-white pb-32">
+    <main className={`min-h-screen pb-32 ${darkMode ? 'bg-[#0F172A] text-white' : 'bg-white text-gray-800'}`}>
       <section className="relative bg-[#BFDB9F] rounded-b-xl pt-6 pb-8 px-4">
         <div className="flex items-center justify-between mb-4">
           <button onClick={() => router.back()} className="p-2 bg-white rounded-full shadow">
@@ -133,7 +135,7 @@ export default function Podcast({ id }) {
               setCurrentTime(t);
             }}
             className="flex-1 h-3 rounded-full mx-3"
-            style={{ accentColor: "#2563eb" }}
+            style={{ accentColor: darkMode ? "#93C5FD" : "#2563eb" }}
           />
           <span className="text-xs text-black">{fmt(duration)}</span>
         </div>
@@ -142,8 +144,10 @@ export default function Podcast({ id }) {
       </section>
 
       <section className="mt-6 px-4">
-        <h2 className="text-2xl font-semibold text-black">{podcast.title}</h2>
-        <p className="mt-2 text-gray-700 text-sm leading-relaxed">{podcast.description}</p>
+        <h2 className={`text-2xl font-semibold ${darkMode ? 'text-white' : 'text-black'}`}>{podcast.title}</h2>
+        <p className={`mt-2 text-sm leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+          {podcast.description}
+        </p>
       </section>
 
       <Link href="/quiz" className="mt-6 px-4 block">
@@ -158,7 +162,7 @@ export default function Podcast({ id }) {
         </div>
       </Link>
 
-      <div className="fixed bottom-0 left-0 w-full bg-blue-500 rounded-t-2xl px-8 py-4 flex justify-around items-center z-50 text-white">
+      <div className={`fixed bottom-0 left-0 w-full rounded-t-2xl px-8 py-4 flex justify-around items-center z-50 ${darkMode ? 'bg-blue-700 text-white' : 'bg-blue-500 text-white'}`}>
         <BookmarkButton contentId={podcast.id} type="podcast" />
         <button
           onClick={() => setLiked(!liked)}

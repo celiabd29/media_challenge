@@ -5,6 +5,7 @@ import Image from 'next/image'
 import SearchBar from '../components/SearchBar'
 import { useRouter } from "next/navigation";
 import BottomNavbar from './BottomNavbar';
+import { useDarkMode } from "../contexts/DarkModeContext";
 
 // imp d'images
 import ecouteImg       from '../assets/img/ecoute2.png'
@@ -35,6 +36,7 @@ export default function Recherche() {
   const [selectedTab, setSelectedTab] = useState('Tout')
   const [query, setQuery] = useState('')
   const router = useRouter()
+  const { darkMode } = useDarkMode();
 
   const handleCategoryClick = (category) => {
     if (category.href) {
@@ -43,18 +45,22 @@ export default function Recherche() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen pb-20 bg-white px-4 py-6">
+    <div className={`flex flex-col min-h-screen pb-20 px-4 py-6 ${darkMode ? 'bg-[#0F172A] text-white' : 'bg-white text-gray-800'}`}>
       {/* En‐tête */}
       <header className="flex items-center justify-between mb-4">
-        <h1 className="text-black font-medium text-2xl md:text-3xl leading-6">Recherche</h1>
+        <h1 className={`font-medium text-2xl md:text-3xl leading-6 ${darkMode ? 'text-white' : 'text-black'}`}>
+          Recherche
+        </h1>
       </header>
 
       {/* barre recherche */}
       <SearchBar />
 
-      {/* categorie */}
+      {/* catégorie */}
       <section className="flex-1 overflow-y-auto">
-        <h2 className="text-black font-medium text-lg md:text-xl pb-2">Catégories</h2>
+        <h2 className={`font-medium text-lg md:text-xl pb-2 ${darkMode ? 'text-white' : 'text-black'}`}>
+          Catégories
+        </h2>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
           {categories.map((cat) => (
             <div
@@ -71,8 +77,8 @@ export default function Recherche() {
                 />
               )}
               {/* Filtre noir semi-transparent */}
-              <div className="absolute inset-0 backdrop-invert bg-black/10  backdrop-opacity-10"></div>
-              
+              <div className="absolute inset-0 backdrop-invert bg-black/10 backdrop-opacity-10"></div>
+
               <div className="absolute inset-0 flex items-end">
                 <span className="w-full text-center text-white py-2 font-medium z-10 text-base md:text-lg">
                   {cat.label}
@@ -82,8 +88,8 @@ export default function Recherche() {
           ))}
         </div>
       </section>
+
       <BottomNavbar />
-     </div>
-  )
-  
+    </div>
+  );
 }

@@ -104,16 +104,20 @@ export default function Dashboard() {
 
   const handleDelete = async (table, id) => {
     if (!confirm("Supprimer ce contenu ?")) return;
+  
     const { error } = await supabase.from(table).delete().eq("id", id);
+  
     if (error) {
       alert("❌ Erreur lors de la suppression");
       console.error(error);
     } else {
+      console.log(`✅ ${table} ${id} supprimé de Supabase`);
       if (table === "articles") setArticles((prev) => prev.filter((a) => a.id !== id));
       if (table === "videos") setVideos((prev) => prev.filter((v) => v.id !== id));
       if (table === "podcasts") setPodcasts((prev) => prev.filter((p) => p.id !== id));
     }
   };
+  
 
   return (
     <div className={`${darkMode ? 'bg-[#121212]' : 'bg-[#F5F7FB]'} min-h-screen p-4`}>
@@ -207,49 +211,52 @@ export default function Dashboard() {
 </div>
 
 
-        {/* Bloc Gérer les contenus */}
-        <div className={`rounded-2xl shadow pb-18 p-6 ${darkMode ? 'bg-[#0F172A] text-white' : 'bg-white text-gray-800'}`}>
+<div className={`rounded-2xl shadow pb-18 p-6 ${darkMode ? 'bg-[#0F172A] text-white' : 'bg-white text-gray-800'}`}>
   <h3 className="text-lg font-semibold mb-4">Mes contenus</h3>
-  <div className="space-y-6">
+  <div className="flex flex-col gap-y-6">
     {[
       { title: "Articles", items: articles, type: "article", table: "articles" },
       { title: "Vidéos", items: videos, type: "video", table: "videos" },
       { title: "Podcasts", items: podcasts, type: "podcast", table: "podcasts" },
     ].map(({ title, items, type, table }) => (
-      <div key={type}>
+      <div key={type} className="mb-6"> {/* 👈 marge ajoutée ici */}
         <h4 className="text-sm font-semibold mb-2">{title}</h4>
         {items.length === 0 ? (
           <p className="text-sm opacity-70">Aucun {title.toLowerCase()} publié.</p>
         ) : (
-          items.map((item) => (
-            <div
-              key={item.id}
-              className={`border rounded p-4 flex flex-col gap-2 transition ${
-                darkMode ? 'bg-[#1e293b] border-gray-600' : 'bg-gray-50 border-gray-300'
-              }`}
-            >
-              <span className="font-medium">{item.title}</span>
-              <div className="flex gap-3">
-                <button
-                  className="text-sm text-blue-600 hover:underline"
-                  onClick={() => router.push(`/modifier/${type}/${item.id}`)}
-                >
-                  ✏️ Modifier
-                </button>
-                <button
-                  className="text-sm text-red-500 hover:underline"
-                  onClick={() => handleDelete(table, item.id)}
-                >
-                  🗑️ Supprimer
-                </button>
-              </div>
-            </div>
-          ))
+          <div className="flex flex-col gap-4">
+  {items.map((item) => (
+    <div
+      key={item.id}
+      className={`border rounded p-4 flex flex-col gap-2 transition ${
+        darkMode ? 'bg-[#1e293b] border-gray-600' : 'bg-gray-50 border-gray-300'
+      }`}
+    >
+      <span className="font-medium">{item.title}</span>
+      <div className="flex gap-3">
+        <button
+          className="text-sm text-blue-600 hover:underline"
+          onClick={() => router.push(`/modifier/${type}/${item.id}`)}
+        >
+          ✏️ Modifier
+        </button>
+        <button
+          className="text-sm text-red-500 hover:underline"
+          onClick={() => handleDelete(table, item.id)}
+        >
+          🗑️ Supprimer
+        </button>
+      </div>
+    </div>
+  ))}
+</div>
+
         )}
       </div>
     ))}
   </div>
 </div>
+
 
 
       </div>

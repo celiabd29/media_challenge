@@ -1,5 +1,5 @@
 'use client';
-
+import React from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/supabase/supabaseClient';
@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { Heart, Share } from 'lucide-react';
 import SearchBar from "../components/SearchBar";
 import { useAuth } from '@/contexts/AuthContext';
+import { useDarkMode } from "../contexts/DarkModeContext";
 
 export default function EcoutePage() {
   const [favoris, setFavoris] = useState([]);
@@ -16,12 +17,50 @@ export default function EcoutePage() {
   const [query, setQuery] = useState("");
   const { user } = useAuth(); 
   const router = useRouter();
+  const { darkMode } = useDarkMode();
 
   const tabs = [
-    { key: 'Tout', label: 'Tout' },
-    { key: 'Article', label: 'Article' },
-    { key: 'Video', label: 'Vidéo' },
-    { key: 'Podcast', label: 'Podcast' },
+    {
+      key: 'Tout',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12.25" cy="11.5" r="7" />
+          <path d="M22.75 22L20.75 20" />
+        </svg>
+      ),
+    },
+    {
+      key: 'Article',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="16" y1="13" x2="8" y2="13" />
+          <line x1="16" y1="17" x2="8" y2="17" />
+          <line x1="10" y1="9" x2="8" y2="9" />
+        </svg>
+      ),
+    },
+    {
+      key: 'Vidéo',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="6" width="15" height="12" rx="2" ry="2" />
+          <polygon points="10 8 16 12 10 16" />
+        </svg>
+      ),
+    },
+    {
+      key: 'Podcast',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" />
+          <path d="M19 10v1a7 7 0 0 1-14 0v-1" />
+          <line x1="12" y1="19" x2="12" y2="23" />
+          <line x1="8" y1="23" x2="16" y2="23" />
+        </svg>
+      ),
+    },
   ];
 
   useEffect(() => {
@@ -78,44 +117,62 @@ export default function EcoutePage() {
   }, [selectedTab, favoris]);
 
   return (
-    <div className="flex flex-col min-h-screen pb-20 bg-white px-4 py-6">
+    <div className={`flex flex-col min-h-screen pb-20 px-4 py-6 ${darkMode ? 'bg-[#0F172A] text-white' : 'bg-white text-gray-800'}`}>
       <div className="flex items-center gap-2 mb-6">
         <button
           onClick={() => router.push("/recherche")}
-          className="p-2 bg-white rounded-full shadow-xl"
+          className={`p-2 rounded-full shadow-xl ${darkMode ? 'bg-[#1E293B]' : 'bg-white'}`}
         >
-          <svg className="w-5 h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5" fill="none" stroke={darkMode ? "white" : "currentColor"} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <h1 className="ml-2 text-2xl font-medium">Mes Favoris</h1>
+        <h1 className={`ml-2 text-2xl font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+  Mes Favoris
+</h1>
+
       </div>
 
       <SearchBar query={query} setQuery={setQuery} />
 
+      {/* barre onglets custom stylée */}
       <nav className="flex mb-8 gap-2">
         {tabs.map((tab) => {
           const isActive = tab.key === selectedTab;
+          const base = 'flex flex-col items-center justify-center px-3 py-4 rounded-lg text-sm font-medium border-2 flex-1 min-w-0 transition';
+          const activeClasses = darkMode
+            ? 'bg-blue-500 border-blue-500 text-white'
+            : 'bg-blue-500 border-blue-500 text-white';
+          const inactiveClasses = darkMode
+            ? 'bg-[#1E293B] border-blue-500 text-blue-400 hover:border-blue-400'
+            : 'bg-white border-blue-500 text-blue-500 hover:border-blue-600';
+
           return (
             <button
               key={tab.key}
-              className={`flex-1 px-3 py-2 text-sm rounded-full border-2 ${
-                isActive ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-blue-500 border-blue-500'
-              }`}
+              className={`${base} ${isActive ? activeClasses : inactiveClasses}`}
               onClick={() => setSelectedTab(tab.key)}
             >
-              {tab.label}
+              {React.cloneElement(tab.icon, {
+                width: 20,
+                height: 20,
+                stroke: isActive ? '#ffffff' : '#3b82f6',
+              })}
+              <span className="capitalize text-xs pt-1">{tab.key}</span>
             </button>
           );
         })}
       </nav>
 
+      {/* favoris */}
       <div className="flex flex-col gap-4 sm:grid sm:grid-cols-2 md:grid-cols-3 md:gap-6">
         {filtered.map((item) => (
           <Link
             href={item.path}
             key={item.id}
-            className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-row sm:flex-col"
+            className={`rounded-xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-row sm:flex-col border ${
+              darkMode ? 'bg-[#1E293B] border-gray-700' : 'bg-white border-gray-200'
+            }`}
           >
             <Image
               src={item.image_url || item.main_image_url || '/placeholder.png'}
@@ -129,15 +186,15 @@ export default function EcoutePage() {
                 <span className="text-[10px] px-2 py-0.5 bg-pink-100 text-pink-700 rounded-full w-fit text-xs">
                   {item.category || 'Favoris'}
                 </span>
-                <h3 className="text-sm font-semibold text-gray-900">{item.title}</h3>
-                <p className="text-sm text-gray-500 line-clamp-2">
+                <h3 className={`text-sm font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{item.title}</h3>
+                <p className={`text-sm line-clamp-2 ${darkMode ? 'text-gray-300' : 'text-gray-500'}`}>
                   {item.description || item.content?.slice(0, 100)}...
                 </p>
               </div>
-              <div className="flex justify-between items-center text-xs text-gray-400 pt-1">
+              <div className={`flex justify-between items-center text-xs pt-1 ${darkMode ? 'text-gray-400' : 'text-gray-400'}`}>
                 <span>5 min</span>
                 <span>{item.type}</span>
-                <div className="flex gap-2 text-gray-400">
+                <div className="flex gap-2">
                   <Heart className="w-4 h-4" />
                   <Share className="w-4 h-4" />
                 </div>
